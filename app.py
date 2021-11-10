@@ -28,6 +28,14 @@ def insert_data_set_entry(data_set_id, image_id, name):
   cursor.close()
   return id
 
+def insert_cropped_image_face(cropped_image_id, face_id):
+  cursor = conn.cursor()
+  cursor.execute("""INSERT INTO cropped_image_faces (cropped_image_id, face_id) VALUES (%s, %s) RETURNING id;""", (cropped_image_id, face_id))
+  id = cursor.fetchone()[0]
+  conn.commit()
+  cursor.close()
+  return id
+
 def insert_image_face(image_id, face_id):
   cursor = conn.cursor()
   cursor.execute("""INSERT INTO image_faces (image_id, face_id) VALUES (%s, %s) RETURNING id;""", (image_id, face_id))
@@ -52,6 +60,14 @@ def insert_face(x0, y0, x1, y1):
   cursor.close()
   return id
 
+def insert_cropped_image(image_id, data):
+  cursor = conn.cursor()
+  cursor.execute("""INSERT INTO cropped_images (image_id, data) VALUES (%s, %s) RETURNING id;""",(image_id, data))
+  id = cursor.fetchone()[0]
+  conn.commit()
+  cursor.close()
+  return id
+
 def insert_image(width, height, data):
   cursor = conn.cursor()
   cursor.execute("""INSERT INTO images (width, height, data) VALUES (%s, %s, %s) RETURNING id;""",(width, height, data))
@@ -70,16 +86,20 @@ def update_data_set_entry(id, name):
 
 def delete_data_set_entry(id):
   cursor = conn.cursor()
-  cursor.execute("""SELECT image_id FROM data_set_entries WHERE id = %s;""", (id,))
-  image_id = cursor.fetchone()[0]
-  if image_id is None:
+  cursor.execute("""SELECT image_id, ci.id FROM data_set_entries AS dse INNER JOIN cropped_images AS ci ON dse.image_id = ci.image_id WHERE dse.id = %s;""", (id,))
+  image_ids = cursor.fetchone()
+  if image_ids is None:
     return False
   cursor.execute("""DELETE FROM data_set_entries WHERE id = %s;""", (id,))
-  cursor.execute("""SELECT face_id FROM image_faces WHERE image_id = %s;""", (image_id,))
+  cursor.execute("""SELECT face_id FROM image_faces WHERE image_id = %s;""", (image_ids[0],))
   records = cursor.fetchall()
-  face_ids = tuple([record[0] for record in records])
+  face_ids = [record[0] for record in records]
+  cursor.execute("""SELECT face_id FROM cropped_image_faces WHERE cropped_image_id = %s;""", (image_ids[1],))
+  records = cursor.fetchall()
+  face_ids += [record[0] for record in records]
   cursor.execute("""DELETE FROM faces WHERE id IN %s;""", (face_ids,))
-  cursor.execute("""DELETE FROM images WHERE id = %s;""", (image_id,))
+  cursor.execute("""DELETE FROM images WHERE id = %s;""", (image_ids[0],))
+  cursor.execute("""DELETE FROM cropped_images WHERE id = %s;""", (image_ids[1],))
   conn.commit()
   cursor.close()
   return True
@@ -177,12 +197,24 @@ def process_pil_image(data_set_id, name, image):
 
   faces = RetinaFace.detect_faces(temp_file.name)
 
+  max_x = float('-inf')
+  max_y = float('-inf')
+
+  min_x = float('inf')
+  min_y = float('inf')
+
   for face in faces:
 
     x0 = int(faces[face]['facial_area'][0])
     y0 = int(faces[face]['facial_area'][1])
     x1 = int(faces[face]['facial_area'][2])
     y1 = int(faces[face]['facial_area'][3])
+
+    max_x = max(max_x, x1)
+    max_y = max(max_y, y1)
+
+    min_x = min(min_x, x0)
+    min_y = min(min_y, y0)
 
     face_id = insert_face(x0, y0, x1, y1)
 
@@ -194,6 +226,54 @@ def process_pil_image(data_set_id, name, image):
       insert_facial_landmark(face_id, landmark, x, y)
 
     insert_image_face(image_id, face_id)
+
+  scale = 300 / width
+  if width > height:
+    scale = 300 / height
+
+  scl_x0 = int(min_x * scale)
+  scl_y0 = int(min_y * scale)
+
+  scl_x1 = int(max_x * scale)
+  scl_y1 = int(max_y * scale)
+
+  res_width = 300
+  res_height = 300
+
+  crop_offset_x = 0
+  crop_offset_y = 0
+
+  if width > height:
+    res_width = int(width * scale)
+    crop_offset_x = min(res_width - 300, scl_x0)
+  elif height > width:
+    res_width = int(height * scale)
+    crop_offset_y = min(res_height - 300, scl_y0)
+
+  cropped_image = image.resize((res_width, res_height))
+  cropped_image = cropped_image.crop((crop_offset_x, crop_offset_y, crop_offset_x + 300, crop_offset_y + 300))
+  cropped_image = cropped_image.convert('L')
+
+  cropped_image_data = np.asarray(image).tobytes()
+  cropped_image_id = insert_cropped_image(image_id, cropped_image_data)
+
+  for face in faces:
+
+    x0 = int(faces[face]['facial_area'][0] * scale) - crop_offset_x
+    y0 = int(faces[face]['facial_area'][1] * scale) - crop_offset_y
+    x1 = int(faces[face]['facial_area'][2] * scale) - crop_offset_x
+    y1 = int(faces[face]['facial_area'][3] * scale) - crop_offset_y
+
+    face_id = insert_face(x0, y0, x1, y1)
+
+    for landmark in faces[face]['landmarks']:
+
+      x = int(faces[face]['landmarks'][landmark][0] * scale) - crop_offset_x
+      y = int(faces[face]['landmarks'][landmark][1] * scale) - crop_offset_y
+
+      insert_facial_landmark(face_id, landmark, x, y)
+
+    insert_cropped_image_face(cropped_image_id, face_id)
 
   return insert_data_set_entry(data_set_id, image_id, name)
 
