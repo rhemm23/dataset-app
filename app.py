@@ -298,7 +298,7 @@ def cropped_image(id):
   if cropped_image is None:
     flask.abort(404)
   else:
-    image_arr = np.frombuffer(cropped_image, dtype=np.uint8).reshape((300, 300, 1))
+    image_arr = np.frombuffer(cropped_image, dtype=np.uint8).reshape((300, 300))
     image_pil = Image.fromarray(image_arr, mode='L')
     image_drw = ImageDraw.Draw(image_pil)
 
