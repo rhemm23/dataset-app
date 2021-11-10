@@ -55,13 +55,17 @@
     <div class="content">
       <div class="ui form">
         <div class="field">
-          <div
-            id="select-image-btn"
-            class="ui button"
-          >
-            <i class="file icon"></i>
-            Select Image
-          </div>
+          <span>
+            <div
+              id="select-image-btn"
+              class="ui button"
+            >
+              <i class="file icon"></i>
+              Select Image
+            </div>
+            <div id="selected-image-name">
+            </div>
+          </span>
           <input
             type="file"
             accept="image/png,image/jpeg"
@@ -91,6 +95,8 @@
           .prop('disabled', true)
         $('#upload-image-input')
           .val(null)
+        $('#selected-image-name')
+          .text('')
         $('#upload-image-modal')
           .modal({
             closable: true,
@@ -112,13 +118,10 @@
     $('#upload-image-input')
       .on('change', function() {
         var file = $('#upload-image-input').val()
-        if (file != '') {
-          $('#upload-image-submit-btn')
-            .prop('disabled', false)
-        } else {
-          $('#upload-image-submit-btn')
-            .prop('disabled', true)
-        }
+        $('#upload-image-submit-btn')
+          .prop('disabled', file == '')
+        $('#selected-image-name')
+          .text(file)
       })
 
     function delete_data_set_entry(id) {
