@@ -70,7 +70,7 @@ def insert_cropped_image(image_id, data):
 
 def insert_image(width, height, data):
   cursor = conn.cursor()
-  cursor.execute("""INSERT INTO images (width, height, data) VALUES (%s, %s, %s) RETURNING id;""",(width, height, data))
+  cursor.execute("""INSERT INTO images (width, height, data) VALUES (%s, %s, %s) RETURNING id;""", (width, height, data))
   id = cursor.fetchone()[0]
   conn.commit()
   cursor.close()
@@ -256,7 +256,7 @@ def process_pil_image(data_set_id, name, image):
     res_width = int(width * scale)
     crop_offset_x = min(res_width - 300, scl_x0)
   elif height > width:
-    res_width = int(height * scale)
+    res_height = int(height * scale)
     crop_offset_y = min(res_height - 300, scl_y0)
 
   cropped_image = image.resize((res_width, res_height))
@@ -272,6 +272,9 @@ def process_pil_image(data_set_id, name, image):
     y0 = int(faces[face]['facial_area'][1] * scale) - crop_offset_y
     x1 = int(faces[face]['facial_area'][2] * scale) - crop_offset_x
     y1 = int(faces[face]['facial_area'][3] * scale) - crop_offset_y
+
+    if x0 < 0 or y0 < 0 or x1 >= 300 or y1 >= 300:
+      continue
 
     face_id = insert_face(x0, y0, x1, y1)
 
