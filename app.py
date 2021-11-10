@@ -242,7 +242,9 @@ def data_set_entry(id):
       return render_template(
         'data_set_entry.html',
         title='Data Set Entry - {}'.format(data_set_entry[0]),
-        image_id=data_set_entry[1]
+        image_id=data_set_entry[1],
+        width=data_set_entry[2],
+        height=data_set_entry[3]
       )
 
 @app.route('/data-sets/<int:id>/upload', methods=['POST'])
