@@ -146,10 +146,11 @@ def process_pil_image(data_set_id, name, image):
   image_id = insert_image(width, height, image_data)
 
   temp_file = tempfile.NamedTemporaryFile()
-  temp_file.write(image_data)
+  image.save(temp_file, 'PNG')
   temp_file.seek(0)
 
   faces = RetinaFace.detect_faces(temp_file.name)
+
   for face in faces:
 
     x0 = int(faces[face]['facial_area'][0])
