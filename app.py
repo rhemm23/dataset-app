@@ -206,7 +206,7 @@ def image(id):
   if image is None:
     flask.abort(404)
   else:
-    image_arr = np.frombuffer(image[2], dtype=np.uint8).reshape((3, image[0], image[1]))
+    image_arr = np.frombuffer(image[2], dtype=np.uint8).reshape((image[0], image[1], 3))
     image_pil = PIL.Image.fromarray(image_arr, mode='RGB')
 
     image_io = io.BytesIO()
