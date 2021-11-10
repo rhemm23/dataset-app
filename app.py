@@ -12,11 +12,19 @@ def get_image_count():
   cursor.close()
   return count
 
+def get_original_images():
+  cursor = conn.cursor()
+  cursor.execute("""SELECT id, google_file_name, width, height FROM images ORDER BY id asc LIMIT 50;""")
+  images = cursor.fetchall()
+  cursor.close()
+  return images
+
 @app.route('/original-images')
 def original_images():
   return render_template(
     'original_images.html',
-    title='Original Images'
+    title='Original Images',
+    images=get_original_images()
   )
 
 @app.route('/')

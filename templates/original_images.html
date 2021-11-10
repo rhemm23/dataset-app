@@ -1,4 +1,23 @@
 {% extends "layout.html" %}
 {% block body %}
-<h1>Test</h1>
+<table class="ui celled table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Width</th>
+      <th>Height</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for image in images %}
+      <tr>
+        <td>{{ image[0] }}</td>
+        <td>{{ image[1] }}</td>
+        <td>{{ image[2] }}</td>
+        <td>{{ image[3] }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
