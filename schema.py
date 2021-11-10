@@ -26,23 +26,23 @@ db_cursor.execute(
 )
 db_cursor.execute(
   """
-  CREATE TABLE images (
+  CREATE TABLE data_set_entries (
     id SERIAL PRIMARY KEY,
-    width INTEGER NOT NULL,
-    height INTEGER NOT NULL,
-    data BYTEA NOT NULL
+    name VARCHAR(200) NOT NULL,
+    data_set_id INTEGER NOT NULL,
+    CONSTRAINT fk_data_sets_data_set_entries FOREIGN KEY (data_set_id) REFERENCES data_sets(id) ON DELETE CASCADE
   );
   """
 )
 db_cursor.execute(
   """
-  CREATE TABLE data_set_entries (
+  CREATE TABLE images (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    data_set_id INTEGER NOT NULL,
-    image_id INTEGER NOT NULL,
-    CONSTRAINT fk_images_data_set_entries FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
-    CONSTRAINT fk_data_sets_data_set_entries FOREIGN KEY (data_set_id) REFERENCES data_sets(id) ON DELETE CASCADE
+    data_set_entry_id INTEGER NOT NULL,
+    width INTEGER NOT NULL,
+    height INTEGER NOT NULL,
+    data BYTEA NOT NULL,
+    CONSTRAINT fk_data_set_entries_images FOREIGN KEY (data_set_entry_id) REFERENCES data_set_entries(id) ON DELETE CASCADE
   );
   """
 )
@@ -60,10 +60,14 @@ db_cursor.execute(
   """
   CREATE TABLE faces (
     id SERIAL PRIMARY KEY,
+    image_id INTEGER,
+    cropped_image_id INTEGER,
     x0 INTEGER NOT NULL,
     y0 INTEGER NOT NULL,
     x1 INTEGER NOT NULL,
-    y1 INTEGER NOT NULL
+    y1 INTEGER NOT NULL,
+    CONSTRAINT fk_images_faces FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
+    CONSTRAINT fk_cropped_images_faces FOREIGN KEY (cropped_image_id) REFERENCES cropped_images(id) ON DELETE CASCADE
   );
   """
 )
@@ -76,28 +80,6 @@ db_cursor.execute(
     x INTEGER NOT NULL,
     y INTEGER NOT NULL,
     CONSTRAINT fk_faces_facial_landmarks FOREIGN KEY (face_id) REFERENCES faces(id) ON DELETE CASCADE
-  );
-  """
-)
-db_cursor.execute(
-  """
-  CREATE TABLE image_faces (
-    id SERIAL PRIMARY KEY,
-    face_id INTEGER NOT NULL,
-    image_id INTEGER NOT NULL,
-    CONSTRAINT fk_faces_image_faces FOREIGN KEY (face_id) REFERENCES faces(id) ON DELETE CASCADE,
-    CONSTRAINT fk_images_image_faces FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE
-  );
-  """
-)
-db_cursor.execute(
-  """
-  CREATE TABLE cropped_image_faces (
-    id SERIAL PRIMARY KEY,
-    face_id INTEGER NOT NULL,
-    cropped_image_id INTEGER NOT NULL,
-    CONSTRAINT fk_faces_image_faces FOREIGN KEY (face_id) REFERENCES faces(id) ON DELETE CASCADE,
-    CONSTRAINT fk_cropped_images_image_faces FOREIGN KEY (cropped_image_id) REFERENCES cropped_images(id) ON DELETE CASCADE
   );
   """
 )
