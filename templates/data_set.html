@@ -119,14 +119,14 @@
     // On file selected
     $('#upload-image-input')
       .on('change', function() {
-        var file = $('#upload-image-input').val()
-        if (file != '') {
+        var files = $('#upload-image-input').prop('files')
+        if (files.length == 1 && (files[0].type == 'image/png' || files[0].type == 'image/jpeg')) {
           $('#upload-image-submit-btn')
             .prop('disabled', false)
           $('#select-image-btn')
             .hide()
           $('#selected-image-name')
-            .text(file)
+            .text(files[0].name)
         }
       })
 
