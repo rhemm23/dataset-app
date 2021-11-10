@@ -27,10 +27,10 @@
       <tr>
         <th colspan="4">
           <div class="ui right floated pagination menu">
-            <a aria-disabled="{{ (page == 0) ? 'true' : 'false' }}" class="icon item">
+            <a aria-disabled="{{ 'true' if page == 0 else 'false' }}" class="icon item">
               <i class="left chevron icon"></i>
             </a>
-            <a aria-disabled="{{ (page == page_count - 1) ? 'true' : 'false' }}" class="icon item">
+            <a aria-disabled="{{ 'true' if page == page_count - 1 else 'false' }}" class="icon item">
               <i class="right chevron icon"></i>
             </a>
           </div>
