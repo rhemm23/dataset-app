@@ -1,27 +1,38 @@
 {% extends "layout.html" %}
 {% block body %}
-<table class="ui selectable celled table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Width</th>
-      <th>Height</th>
-      <th>Name</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for image in images %}
+  <table class="ui selectable celled table">
+    <thead>
       <tr>
-        <td class="collapsing">{{ image[0] }}</td>
-        <td class="collapsing">{{ image[1] }}</td>
-        <td class="collapsing">{{ image[2] }}</td>
-        <td>
-          <p class="ui center aligned">
-            {{ image[3] }}
-          </p>
-        </td>
+        <th>ID</th>
+        <th>Width</th>
+        <th>Height</th>
+        <th>Name</th>
       </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {% for image in images %}
+        <tr>
+          <td class="collapsing">{{ image[0] }}</td>
+          <td class="collapsing">{{ image[1] }}</td>
+          <td class="collapsing">{{ image[2] }}</td>
+          <td>
+            <p class="ui center aligned">
+              {{ image[3] }}
+            </p>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="4">
+          <div class="ui right floated pagination menu">
+            <a class="icon item">
+              <i class="left chevron icon"></i>
+            </a>
+          </div>
+        </th>
+      </tr>
+    </tfoot>
+  </table>
 {% endblock %}
