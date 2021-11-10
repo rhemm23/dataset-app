@@ -115,7 +115,7 @@
                   name: $('#new-data-set-name-input').val()
                 },
                 success: function(data) {
-                  window.location = `/data-sets/${data.data.id}`
+                  window.location = `/data-sets/${data.id}`
                 },
                 error: function(data) {
                   flash_error('Failed to create data set')
@@ -159,15 +159,16 @@
         .modal({
           closable: true,
           onApprove: function() {
+            var final_name = $('#new-data-set-name-input').val()
             $.ajax({
               url: `/data-sets/${id}`,
               type: 'POST',
               data: {
-                name: $('#new-data-set-name-input').val()
+                name: final_name
               },
               success: function(data) {
-                $(`#data-set-${id}-name`).text(data.data.name)
-                flash_success(`Successfully changed the name of data set '${current_name}' to '${data.data.name}'`)
+                $(`#data-set-${id}-name`).text(final_name)
+                flash_success(`Successfully changed the name of data set '${current_name}' to '${final_name}'`)
               },
               error: function(data) {
                 flash_error(`Failed to update data set '${current_name}'`)
