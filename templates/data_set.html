@@ -55,8 +55,8 @@
     <div class="content">
       <div class="ui form">
         <div class="field">
-          <label>Image</label>
           <div class="ui button">
+            <i class="file icon"></i>
             Select Image
           </div>
           <input type="file" id="upload-image-input" style="display: none">
@@ -79,6 +79,8 @@
     // On upload image pressed
     $('#upload-image-btn')
       .click(function() {
+        $('#upload-image-submit-btn')
+          .prop('disabled', true)
         $('#upload-image-modal')
           .modal({
             closable: true,
