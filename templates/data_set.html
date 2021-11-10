@@ -234,7 +234,7 @@
                 name: fin_name
               },
               success: function(data) {
-                $(`data-set-entry-${id}-name`).text(fin_name)
+                $(`#data-set-entry-${id}-name`).text(fin_name)
                 flash_success(`Successfully changed data set entry '${current_name}'' to '${fin_name}'`)
               },
               error: function(data) {
