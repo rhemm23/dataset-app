@@ -1,6 +1,7 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 import psycopg2 as psql
+import math
 
 app = Flask(__name__)
 conn = psql.connect("dbname=faces user=admin password=admin")
@@ -12,19 +13,42 @@ def get_image_count():
   cursor.close()
   return count
 
-def get_original_images():
+def get_original_images(page):
+
+  image_count = get_image_count()
+  page_count = math.ceil(image_count / 50)
+
+  if page >= page_count:
+    page = page_count - 1
+  elif page < 0:
+    page = 0
+
   cursor = conn.cursor()
-  cursor.execute("""SELECT id, width, height, google_file_name FROM images ORDER BY id asc LIMIT 50;""")
+  cursor.execute("""SELECT id, width, height, google_file_name FROM images ORDER BY id asc LIMIT 50 OFFSET %s;""", (page * 50,))
   images = cursor.fetchall()
   cursor.close()
-  return images
+  return images, page_count
 
 @app.route('/original-images')
 def original_images():
+
+  # Determine page number
+  page = request.args.get('page')
+  if page is None:
+    page = 0
+  else:
+    try:
+      page = int(page)
+    except:
+      page = 0
+
+  images, page_count = get_original_images(page)
+
   return render_template(
     'original_images.html',
     title='Original Images',
-    images=get_original_images()
+    images=images,
+    page_count=page_count
   )
 
 @app.route('/')
