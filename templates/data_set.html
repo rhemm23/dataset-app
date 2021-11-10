@@ -110,7 +110,7 @@
 
     // On file selected
     $('#upload-image-input')
-      .change(function() {
+      .on('change', function() {
         var files = $(this).prop('files')
         $('#upload-image-submit-btn')
           .prop('disabled', files.length == 1)
