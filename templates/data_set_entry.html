@@ -1,11 +1,12 @@
 {% extends "layout.html" %}
 {% block body %}
   <div class="ui segment">
-    <h1 class="ui header">
-      Full Image
-    </h1>
-    <h2 class="ui sub header">
-      Dimensions: {{ width }}x{{ height }}
+    <h2 class="ui header">
+      <i class="image outline icon"></i>
+      <div class="content">
+        Full Image
+        <div class="sub header">Dimensions: {{ width }}x{{ height }}</div>
+      </div>
     </h2>
     <img src='/images/{{ image_id }}' />
   </div>
