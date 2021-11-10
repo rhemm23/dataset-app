@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-<table class="ui celled table">
+<table class="ui selectable inverted celled table">
   <thead>
     <tr>
       <th>ID</th>
@@ -12,10 +12,10 @@
   <tbody>
     {% for image in images %}
       <tr>
-        <td>{{ image[0] }}</td>
-        <td>{{ image[1] }}</td>
-        <td>{{ image[2] }}</td>
-        <td>{{ image[3] }}</td>
+        <td class="collapsing">{{ image[0] }}</td>
+        <td class="collapsing">{{ image[1] }}</td>
+        <td class="collapsing">{{ image[2] }}</td>
+        <td class="collapsing">{{ image[3] }}</td>
       </tr>
     {% endfor %}
   </tbody>
