@@ -58,14 +58,12 @@
           <div
             id="select-image-btn"
             class="ui button"
-            style="float: left;"
           >
             <i class="file icon"></i>
             Select Image
           </div>
           <div
             id="selected-image-name"
-            style="float: right;"
           >
           </div>
           <input
@@ -99,6 +97,8 @@
           .val(null)
         $('#selected-image-name')
           .text('')
+        $('#select-image-btn')
+          .show()
         $('#upload-image-modal')
           .modal({
             closable: true,
@@ -120,10 +120,14 @@
     $('#upload-image-input')
       .on('change', function() {
         var file = $('#upload-image-input').val()
-        $('#upload-image-submit-btn')
-          .prop('disabled', file == '')
-        $('#selected-image-name')
-          .text(file)
+        if (file != '') {
+          $('#upload-image-submit-btn')
+            .prop('disabled', false)
+          $('#select-image-btn')
+            .hide()
+          $('#selected-image-name')
+            .text(file)
+        }
       })
 
     function delete_data_set_entry(id) {
