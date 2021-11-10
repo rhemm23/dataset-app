@@ -92,7 +92,7 @@ def get_image(id):
 
 def get_data_set_entry(id):
   cursor = conn.cursor()
-  cursor.execute("""SELECT name, image_id FROM data_set_entries WHERE id = %s;""", (id,))
+  cursor.execute("""SELECT dse.name, dse.image_id, img.width, img.height FROM data_set_entries AS dse INNER JOIN images AS img ON dse.image_id = img.id WHERE id = %s;""", (id,))
   data_set = cursor.fetchone()
   cursor.close()
   return data_set
