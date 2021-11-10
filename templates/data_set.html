@@ -111,8 +111,14 @@
     // On file selected
     $('#upload-image-input')
       .on('change', function() {
-        $('#upload-image-submit-btn')
-          .prop('disabled', $(this).val() != null)
+        var file = $('#upload-image-input').val()
+        if (file != '') {
+          $('#upload-image-submit-btn')
+            .prop('disabled', false)
+        } else {
+          $('#upload-image-submit-btn')
+            .prop('disabled', true)
+        }
       })
 
     function delete_data_set_entry(id) {
