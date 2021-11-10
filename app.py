@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, abort
 
 import psycopg2 as psql
 import math
@@ -19,6 +19,13 @@ def get_original_images(page):
   images = cursor.fetchall()
   cursor.close()
   return images
+
+def get_original_image(id):
+  cursor = conn.cursor()
+  cursor.execute("""SELECT id, width, height, google_file_name FROM images WHERE id = %s;""", (id,))
+  image = cursor.fetchone()
+  cursor.close()
+  return image
 
 @app.route('/original-images')
 def original_images():
@@ -49,6 +56,27 @@ def original_images():
     page=page,
     images=images,
     page_count=page_count
+  )
+
+@app.route('/original-image/<id>')
+def original_image(id):
+
+  if id is None:
+    abort(404)
+  else:
+    try:
+      id = int(id)
+    except:
+      abort(404)
+
+  image = get_original_image(id)
+
+  if image is None:
+    abort(404)
+
+  return render_template(
+    'original_image.html',
+    title = image[3]
   )
 
 @app.route('/')
