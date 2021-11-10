@@ -78,7 +78,7 @@ def original_image(id):
   return render_template(
     'original_image.html',
     title = image[3],
-    image_src = 'data:image/png;base64,{}'.format(base64.b64encode(image[4]))
+    image_src = 'data:image/jpeg;base64,{}'.format(base64.b64encode(image[4]))
   )
 
 @app.route('/')
