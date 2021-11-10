@@ -81,8 +81,8 @@
                   name: $('#new-data-set-name-input').val()
                 },
                 success: function(data) {
-                  var obj = JSON.parse(response);
-                  window.location = `/data-sets/${obj['id']}`
+                  var obj = JSON.parse(data);
+                  window.location = `/data-sets/${obj['data']['id']}`
                 },
                 error: function(data) {
                   flash_error('Failed to create data set')
