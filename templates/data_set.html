@@ -1,5 +1,11 @@
 {% extends "layout.html" %}
 {% block body %}
+  <button
+    id="upload-image-btn"
+    class="ui right floated primary button"
+  >
+    Upload Image
+  </button>
   <table class="ui celled table">
     <thead>
       <tr>
@@ -40,9 +46,51 @@
       {% endfor %}
     </tbody>
   </table>
+  <div
+    id="upload-image-modal"
+    class="ui modal">
+    <div class="header">
+      Upload Image
+    </div>
+    <div class="content">
+      <div class="ui form">
+        <div class="field">
+          <label>Image</label>
+          <div class="ui button">
+            Select Image
+          </div>
+          <input type="file" id="upload-image-input" style="display: none">
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="ui cancel button">
+        Cancel
+      </button>
+      <button
+        id="upload-image-submit-btn"
+        class="ui positive button"
+      >
+        Upload
+      </button>
+    </div>
+  </div>
   <script>
+    // On upload image pressed
+    $('#upload-image-btn')
+      .click(function() {
+        $('#upload-image-modal')
+          .modal({
+            closable: true,
+            onApprove: function() {
+
+            }
+          })
+          .modal('show')
+      })
+
     function delete_data_set_entry(id) {
-      
+
     }
     function edit_data_set_entry(id) {
 
