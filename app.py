@@ -1,5 +1,6 @@
 from flask.templating import render_template
 from retinaface import RetinaFace
+from PIL import Image, ImageDraw, UnidentifiedImageError
 
 import psycopg2 as psql
 import numpy as np
@@ -209,8 +210,8 @@ def image(id):
     flask.abort(404)
   else:
     image_arr = np.frombuffer(image[2], dtype=np.uint8).reshape((image[0], image[1], 3))
-    image_pil = PIL.Image.fromarray(image_arr, mode='RGB')
-    image_drw = PIL.ImageDraw.Draw(image_pil)
+    image_pil = Image.fromarray(image_arr, mode='RGB')
+    image_drw = ImageDraw.Draw(image_pil)
 
     for bbox in bboxes:
       image_drw.rectangle(bbox, outline='red', width=10)
@@ -264,14 +265,14 @@ def data_set_upload(id):
       return err('Invalid file extension')
     else:
       try:
-        pil_image = PIL.Image.open(image)
+        pil_image = Image.open(image)
         id = process_pil_image(id, path.stem, pil_image)
         return ok({
           'id': id,
           'name': path.stem
         })
 
-      except PIL.UnidentifiedImageError:
+      except UnidentifiedImageError:
         return err('Invalid image file')
 
 @app.route('/data-sets/<int:id>', methods=['GET', 'DELETE', 'POST'])
