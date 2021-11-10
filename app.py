@@ -14,7 +14,11 @@ def get_image_count():
 
 @app.route('/')
 def index():
-    return render_template('index.html',image_count=get_image_count())
+    return render_template(
+      'index.html',
+      title='Dataset Manager',
+      image_count=get_image_count()
+    )
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000)
