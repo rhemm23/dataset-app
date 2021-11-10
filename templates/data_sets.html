@@ -44,9 +44,12 @@
     </div>
     <div class="content">
       <div class="ui form">
-        <div class="field">
+        <div id="new-data-set-name-field" class="field">
           <label>Name</label>
-          <input placeholder="Uploaded entries" type="text">
+          <input
+            id="new-data-set-name-input"
+            placeholder="Uploaded entries"
+            type="text">
         </div>
       </div>
     </div>
@@ -71,6 +74,18 @@
             }
           })
           .modal('show')
+      })
+
+    // Error when name empty
+    $('#new-data-set-name-input')
+      .on('input', ':text', function() {
+        if ($(this).val() == '') {
+          $('#new-data-set-name-field')
+            .addClass('error')
+        } else {
+          $('#new-data-set-name-field')
+            .removeClass('error')
+        }
       })
 
     // On delete row
