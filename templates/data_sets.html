@@ -21,7 +21,13 @@
             <td class="collapsing">{{ data_set[0] }}</td>
             <td>{{ data_set[1] }}</td>
             <td>
-              <div class="ui blue label">View</div>
+              <div
+                onclick="window.location='/data-sets/{{ data_set[0] }}'"
+                class="ui blue label"
+                style="cursor: pointer;"
+              >
+                View
+              </div>
               <div
                 onclick="delete_data_set({{ data_set[0] }})"
                 class="ui black label"
