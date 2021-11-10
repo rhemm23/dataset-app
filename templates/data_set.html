@@ -49,6 +49,12 @@
   <div
     id="upload-image-modal"
     class="ui modal">
+    <div
+      id="upload-image-loading"
+      class="ui disabled indeterminate text loader"
+    >
+      Uploading Image
+    </div>
     <div class="header">
       Upload Image
     </div>
@@ -104,6 +110,11 @@
             closable: true,
             onApprove: function() {
 
+              $('#upload-image-modal')
+                .dimmer('show')
+              $('#upload-image-loading')
+                .removeClass('disabled')
+
               var form_data = new FormData()
               var image = $('#upload-image-input').prop('files')[0]
 
@@ -116,12 +127,26 @@
                 processData: false,
                 contentType: false,
                 success: function(data) {
+                  $('#upload-image-modal')
+                    .dimmer('hide')
+                  $('#upload-image-loading')
+                    .addClass('disabled')
+                  $('#upload-image-modal')
+                    .modal('hide')
                   window.alert('success')
                 },
                 error: function(data) {
-                  window.alert('failed')
+                  $('#upload-image-modal')
+                    .dimmer('hide')
+                  $('#upload-image-loading')
+                    .addClass('disabled')
+                  $('#upload-image-modal')
+                    .modal('hide')
+                  window.alert('error')
                 }
               })
+
+              return false;
             }
           })
           .modal('show')
