@@ -35,6 +35,9 @@
         success: function(data) {
           $(`#data-set-${id}`).remove()
           flash_success('Successfully deleted data set')
+        },
+        error: function(data) {
+          flash_error('Failed to remove data set')
         }
       })
     }
