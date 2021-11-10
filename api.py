@@ -1,8 +1,8 @@
-from flask import request, jsonify, UnidentifiedImageError
+from flask import request, jsonify
 from image import ImageProcessor
-from __main__ import app
 from pathlib import Path
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
+from app import app
 from db import DB
 
 db = DB()
@@ -22,7 +22,7 @@ def api_error(message):
 # Create data set
 @app.route('/data-sets', methods=['POST'])
 def create_data_set():
-  name = request.args.get('name')
+  name = request.form['name']
   if not name:
     return api_error('Invalid name')
   return api_success({ 'id': db.insert_data_set(name) })
@@ -38,7 +38,7 @@ def delete_data_set(id):
 # Update data set name
 @app.route('/data-sets/<int:id>', methods=['POST'])
 def update_data_set(id):
-  name = request.args.get('name')
+  name = request.form['name']
   if not name:
     return api_error('Invalid name')
   if db.update_data_set(id, name):
@@ -57,7 +57,7 @@ def delete_data_set_entry(id):
 # Update data set entry name
 @app.route('/data-set-entries/<int:id>', methods=['POST'])
 def update_data_set_entry(id):
-  name = request.args.get('name')
+  name = request.form['name']
   if not name:
     return api_error('Invalid name')
   if db.update_data_set_entry(id, name):
