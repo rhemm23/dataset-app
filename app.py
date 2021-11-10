@@ -1,6 +1,6 @@
 from flask.templating import render_template
 from retinaface import RetinaFace
-from PIL import Image, ImageDraw, UnidentifiedImageError
+from PIL import Image, ImageDraw, UnidentifiedImageError, ImageOps
 
 import psycopg2 as psql
 import numpy as np
@@ -195,8 +195,8 @@ def err(errors=None):
 
 def process_pil_image(data_set_id, name, image):
   image = image.convert('RGB')
+  image = ImageOps.exif_transpose(image)
   width, height = image.size
-  print(image.size)
 
   image_data = np.asarray(image).tobytes()
   image_id = insert_image(width, height, image_data)
