@@ -4,6 +4,34 @@ class DB:
   def __init__(self):
     self.conn = psql.connect("dbname=capstone user=admin password=admin")
 
+  def get_cropped_image_faces(self, id):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT x0, y0, x1, y1 FROM faces WHERE cropped_image_id = %s;""", (id,))
+    faces = cursor.fetchall()
+    cursor.close()
+    return faces
+
+  def get_image_faces(self, id):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT x0, y0, x1, y1 FROM faces WHERE image_id = %s;""", (id,))
+    faces = cursor.fetchall()
+    cursor.close()
+    return faces
+
+  def get_cropped_image(self, id):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT image_id, data FROM cropped_images WHERE id = %s;""", (id,))
+    cropped_image = cursor.fetchone()
+    cursor.close()
+    return cropped_image
+
+  def get_image(self, id):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT data_set_entry_id, width, height, data FROM images WHERE id = %s;""", (id,))
+    image = cursor.fetchone()
+    cursor.close()
+    return image
+
   def does_data_set_exist(self, id):
     cursor = self.conn.cursor()
     cursor.execute("""SELECT EXISTS (SELECT 1 FROM data_sets WHERE id = %s);""", (id,))
