@@ -21,7 +21,7 @@ def insert_data_set_entry(data_set_id, image_id, name):
 
 def insert_image_face(image_id, face_id):
   cursor = conn.cursor()
-  cursor.execute("""INSERT INTO image_faces (image_id face_id) VALUES (%s, %s) RETURNING id;""", (image_id, face_id))
+  cursor.execute("""INSERT INTO image_faces (image_id, face_id) VALUES (%s, %s) RETURNING id;""", (image_id, face_id))
   id = cursor.fetchone()[0]
   conn.commit()
   cursor.close()
