@@ -4,6 +4,29 @@ class DB:
   def __init__(self):
     self.conn = psql.connect("dbname=capstone user=admin password=admin")
 
+  def does_data_set_exist(self, id):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT EXISTS (SELECT 1 FROM data_sets WHERE id = %s);""", (id,))
+    res = cursor.fetchone()[0]
+    cursor.close()
+    return res
+
+  def update_data_set_entry(self, id, name):
+    cursor = self.conn.cursor()
+    cursor.execute("""WITH updated AS (UPDATE data_set_entries SET name = %s WHERE id = %s RETURNING *) SELECT COUNT(*) FROM updated;""", (name, id))
+    upd_cnt = cursor.fetchone()[0]
+    self.conn.commit()
+    cursor.close()
+    return upd_cnt > 0
+
+  def update_data_set(self, id, name):
+    cursor = self.conn.cursor()
+    cursor.execute("""WITH updated AS (UPDATE data_sets SET name = %s WHERE id = %s RETURNING *) SELECT COUNT(*) FROM updated;""", (name, id))
+    upd_cnt = cursor.fetchone()[0]
+    self.conn.commit()
+    cursor.close()
+    return upd_cnt > 0
+
   def facial_landmark_count(self):
     cursor = self.conn.cursor()
     cursor.execute("""SELECT COUNT(*) FROM facial_landmarks;""")
@@ -48,7 +71,7 @@ class DB:
 
   def delete_data_set(self, id):
     cursor = self.conn.cursor()
-    cursor.execute("""WITH deleted AS (DELETE FROM data_sets WHERE id = %s) SELECT COUNT(*) FROM deleted;""", (id,))
+    cursor.execute("""WITH deleted AS (DELETE FROM data_sets WHERE id = %s RETURNING *) SELECT COUNT(*) FROM deleted;""", (id,))
     del_cnt = cursor.fetchone()[0]
     self.conn.commit()
     cursor.close()
@@ -56,7 +79,7 @@ class DB:
 
   def delete_data_set_entry(self, id):
     cursor = self.conn.cursor()
-    cursor.execute("""WITH deleted AS (DELETE FROM data_set_entries WHERE id = %s) SELECT COUNT(*) FROM deleted;""", (id,))
+    cursor.execute("""WITH deleted AS (DELETE FROM data_set_entries WHERE id = %s RETURNING *) SELECT COUNT(*) FROM deleted;""", (id,))
     del_cnt = cursor.fetchone()[0]
     self.conn.commit()
     cursor.close()
@@ -64,7 +87,7 @@ class DB:
 
   def delete_image(self, id):
     cursor = self.conn.cursor()
-    cursor.execute("""WITH deleted AS (DELETE FROM images WHERE id = %s) SELECT COUNT(*) FROM deleted;""", (id,))
+    cursor.execute("""WITH deleted AS (DELETE FROM images WHERE id = %s RETURNING *) SELECT COUNT(*) FROM deleted;""", (id,))
     del_cnt = cursor.fetchone()[0]
     self.conn.commit()
     cursor.close()
@@ -72,7 +95,7 @@ class DB:
 
   def delete_cropped_image(self, id):
     cursor = self.conn.cursor()
-    cursor.execute("""WITH deleted AS (DELETE FROM cropped_images WHERE id = %s) SELECT COUNT(*) FROM deleted;""", (id,))
+    cursor.execute("""WITH deleted AS (DELETE FROM cropped_images WHERE id = %s RETURNING *) SELECT COUNT(*) FROM deleted;""", (id,))
     del_cnt = cursor.fetchone()[0]
     self.conn.commit()
     cursor.close()
@@ -80,7 +103,7 @@ class DB:
 
   def delete_face(self, id):
     cursor = self.conn.cursor()
-    cursor.execute("""WITH deleted AS (DELETE FROM faces WHERE id = %s) SELECT COUNT(*) FROM deleted;""", (id,))
+    cursor.execute("""WITH deleted AS (DELETE FROM faces WHERE id = %s RETURNING *) SELECT COUNT(*) FROM deleted;""", (id,))
     del_cnt = cursor.fetchone()[0]
     self.conn.commit()
     cursor.close()
@@ -88,7 +111,7 @@ class DB:
 
   def delete_facial_landmark(self, id):
     cursor = self.conn.cursor()
-    cursor.execute("""WITH deleted AS (DELETE FROM facial_landmarks WHERE id = %s) SELECT COUNT(*) FROM deleted;""", (id,))
+    cursor.execute("""WITH deleted AS (DELETE FROM facial_landmarks WHERE id = %s RETURNING *) SELECT COUNT(*) FROM deleted;""", (id,))
     del_cnt = cursor.fetchone()[0]
     self.conn.commit()
     cursor.close()

@@ -1,5 +1,6 @@
 from flask.templating import render_template
 from retinaface import RetinaFace
+from image import ImageProcessor
 from PIL import Image, ImageDraw, UnidentifiedImageError, ImageOps
 
 import psycopg2 as psql
@@ -175,125 +176,19 @@ def get_data_sets():
   return data_sets
 
 def ok(data=None):
-  res = {
-    'status': 'success',
-  }
+  res = { 'status': 'success' }
   if data is not None:
     res['data'] = data
   return flask.jsonify(res), 200
 
 def err(errors=None):
-  res = {
-    'status': 'failed'
-  }
+  res = { 'status': 'failed' }
   if errors is not None:
     if isinstance(errors, list):
       res['errors'] = errors
     else:
       res['errors'] = [errors]
   return flask.jsonify(res), 400
-
-def process_pil_image(data_set_id, name, image):
-  image = image.convert('RGB')
-  width, height = image.size
-
-  image_data = np.asarray(image).tobytes()
-  image_id = insert_image(width, height, image_data)
-
-  temp_file = tempfile.NamedTemporaryFile()
-  image.save(temp_file, 'PNG')
-  temp_file.seek(0)
-
-  faces = RetinaFace.detect_faces(temp_file.name)
-
-  max_x = float('-inf')
-  max_y = float('-inf')
-
-  min_x = float('inf')
-  min_y = float('inf')
-
-  for face in faces:
-
-    x0 = int(faces[face]['facial_area'][0])
-    y0 = int(faces[face]['facial_area'][1])
-    x1 = int(faces[face]['facial_area'][2])
-    y1 = int(faces[face]['facial_area'][3])
-
-    max_x = max(max_x, x1)
-    max_y = max(max_y, y1)
-
-    min_x = min(min_x, x0)
-    min_y = min(min_y, y0)
-
-    face_id = insert_face(x0, y0, x1, y1)
-
-    for landmark in faces[face]['landmarks']:
-
-      x = int(faces[face]['landmarks'][landmark][0])
-      y = int(faces[face]['landmarks'][landmark][0])
-
-      insert_facial_landmark(face_id, landmark, x, y)
-
-    insert_image_face(image_id, face_id)
-
-  scale = 300 / width
-  if width > height:
-    scale = 300 / height
-
-  scl_x0 = int(min_x * scale)
-  scl_y0 = int(min_y * scale)
-
-  scl_x1 = int(max_x * scale)
-  scl_y1 = int(max_y * scale)
-
-  res_width = 300
-  res_height = 300
-
-  crop_offset_x = 0
-  crop_offset_y = 0
-
-  if width > height:
-    res_width = int(width * scale)
-    crop_offset_x = min(res_width - 300, scl_x0)
-  elif height > width:
-    res_height = int(height * scale)
-    crop_offset_y = min(res_height - 300, scl_y0)
-
-  cropped_image = image.resize((res_width, res_height))
-  cropped_image = cropped_image.crop((crop_offset_x, crop_offset_y, crop_offset_x + 300, crop_offset_y + 300))
-  cropped_image = cropped_image.convert('L')
-
-  cropped_image_data = np.asarray(cropped_image).tobytes()
-  cropped_image_id = insert_cropped_image(image_id, cropped_image_data)
-
-  for face in faces:
-
-    x0 = int(faces[face]['facial_area'][0] * scale) - crop_offset_x
-    y0 = int(faces[face]['facial_area'][1] * scale) - crop_offset_y
-    x1 = int(faces[face]['facial_area'][2] * scale) - crop_offset_x
-    y1 = int(faces[face]['facial_area'][3] * scale) - crop_offset_y
-
-    if x0 < 0 or y0 < 0 or x1 >= 300 or y1 >= 300:
-      continue
-
-    face_id = insert_face(x0, y0, x1, y1)
-
-    for landmark in faces[face]['landmarks']:
-
-      x = int(faces[face]['landmarks'][landmark][0] * scale) - crop_offset_x
-      y = int(faces[face]['landmarks'][landmark][1] * scale) - crop_offset_y
-
-      insert_facial_landmark(face_id, landmark, x, y)
-
-    insert_cropped_image_face(cropped_image_id, face_id)
-
-  return insert_data_set_entry(data_set_id, image_id, name)
-
-@app.before_request
-def handle_chunking():
-  transfer_encoding = flask.request.headers.get("Transfer-Encoding", None)
-  if transfer_encoding == u"chunked":
-    flask.request.environ["wsgi.input_terminated"] = True
 
 @app.route('/cropped-images/<int:id>', methods=['GET'])
 def cropped_image(id):
