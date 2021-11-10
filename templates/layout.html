@@ -35,7 +35,21 @@
 
       // Flash utility methods
       function flash_message(message, type) {
-        $('#message-container').append(`<div class="ui ${type} message"><i class="close icon"></i>${message}</div>`)
+        msg_txt = $(`<p>${message}</p>`)
+        cls_btn = $('<i class="close icon"></i>')
+        msg_obj = $(`<div class="ui ${type} message"></div>`)
+
+        cls_btn
+          .click(function() {
+            $(this)
+              .parent()
+              .remove()
+          })
+
+        msg_obj.append(cls_btn)
+        msg_obj.append(msg_txt)
+
+        $('#message-container').append(msg_obj)
       }
       function flash_success(message) {
         flash_message(message, 'success')
