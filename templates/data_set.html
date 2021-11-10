@@ -164,7 +164,18 @@
       })
 
     function delete_data_set_entry(id) {
-
+      $.ajax({
+        url: `/data-set-entries/${id}`,
+        type: 'DELETE',
+        success: function(data) {
+          $(`#data-set-entry-${id}`)
+            .remove()
+          flash_success(`Successfully deleted data set entry '${data.data.name}'`)
+        },
+        error: function(data) {
+          flash_error('Failed to delete data set entry')
+        }
+      })
     }
     function edit_data_set_entry(id) {
 
