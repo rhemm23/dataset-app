@@ -1,11 +1,8 @@
 from flask import Flask, render_template, request, abort
-from PIL import Image
 
 import psycopg2 as psql
-import numpy as np
 import base64
 import math
-import io
 
 app = Flask(__name__)
 conn = psql.connect("dbname=faces user=admin password=admin")
@@ -78,23 +75,10 @@ def original_image(id):
   if image is None:
     abort(404)
 
-  pil_image = Image.fromarray(
-    np.ndarray(
-      (3, image[1], image[2]),
-      np.uint8,
-      image[4]
-    )
-  )
-
-  image_io = io.BytesIO()
-  pil_image.save(image_io, 'PNG')
-  image_io.seek(0)
-  image_str = base64.b64encode(image_io)
-
   return render_template(
     'original_image.html',
     title = image[3],
-    image_src = 'data:image/png;base64,{}'.format(image_str)
+    image_src = 'data:image/png;base64,{}'.format(base64.b64encode(image[4]))
   )
 
 @app.route('/')
