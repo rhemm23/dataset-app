@@ -11,7 +11,7 @@
     </thead>
     <tbody>
       {% for image in images %}
-        <tr>
+        <tr onclick="window.location='/original_image/{{ image[0] }}';">
           <td class="collapsing">{{ image[0] }}</td>
           <td class="collapsing">{{ image[1] }}</td>
           <td class="collapsing">{{ image[2] }}</td>
