@@ -55,11 +55,19 @@
     <div class="content">
       <div class="ui form">
         <div class="field">
-          <div class="ui button">
+          <div
+            id="select-image-btn"
+            class="ui button"
+          >
             <i class="file icon"></i>
             Select Image
           </div>
-          <input type="file" id="upload-image-input" style="display: none">
+          <input
+            type="file"
+            accept="image/png,image/jpeg"
+            id="upload-image-input"
+            style="display: none"
+          >
         </div>
       </div>
     </div>
@@ -85,10 +93,17 @@
           .modal({
             closable: true,
             onApprove: function() {
-
+              
             }
           })
           .modal('show')
+      })
+
+    // On select image pressed
+    $('#select-image-btn')
+      .click(function() {
+        $('#upload-image-input')
+          .click()
       })
 
     function delete_data_set_entry(id) {
