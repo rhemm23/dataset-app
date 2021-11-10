@@ -1,11 +1,55 @@
 from flask.templating import render_template
+from retinaface import RetinaFace
+
 import psycopg2 as psql
+import numpy as np
+import tempfile
 import pathlib
 import flask
 import PIL
 
 app = flask.Flask(__name__)
 conn = psql.connect("dbname=capstone user=admin password=admin")
+
+def insert_data_set_entry(data_set_id, image_id, name):
+  cursor = conn.cursor()
+  cursor.execute("""INSERT INTO data_set_entries (data_set_id, image_id, name) VALUES (%s, %s, %s) RETURNING id;""", (data_set_id, image_id, name))
+  id = cursor.fetchone()[0]
+  conn.commit()
+  cursor.close()
+  return id
+
+def insert_image_face(image_id, face_id):
+  cursor = conn.cursor()
+  cursor.execute("""INSERT INTO image_faces (image_id face_id) VALUES (%s, %s) RETURNING id;""", (image_id, face_id))
+  id = cursor.fetchone()[0]
+  conn.commit()
+  cursor.close()
+  return id
+
+def insert_facial_landmark(face_id, name, x, y):
+  cursor = conn.cursor()
+  cursor.execute("""INSERT INTO facial_landmarks (face_id, name, x, y) VALUES (%s, %s, %s, %s) RETURNING id;""", (face_id, name, x, y))
+  id = cursor.fetchone()[0]
+  conn.commit()
+  cursor.close()
+  return id
+
+def insert_face(x0, y0, x1, y1):
+  cursor = conn.cursor()
+  cursor.execute("""INSERT INTO faces (x0, y0, x1, y1) VALUES (%s, %s, %s, %s) RETURNING id;""", (x0, y0, x1, y1))
+  id = cursor.fetchone()[0]
+  conn.commit()
+  cursor.close()
+  return id
+
+def insert_image(width, height, data):
+  cursor = conn.cursor()
+  cursor.execute("""INSERT INTO images (width, height, data) VALUES (%s, %s, %s) RETURNING id;""",(width, height, data))
+  id = cursor.fetchone()[0]
+  conn.commit()
+  cursor.close()
+  return id
 
 def update_data_set_entry(id, name):
   cursor = conn.cursor()
@@ -94,8 +138,38 @@ def err(errors=None):
       res['errors'] = [errors]
   return flask.jsonify(res), 400
 
-def process_pil_image(image):
-  print('test')
+def process_pil_image(data_set_id, name, image):
+  image = image.convert('RGB')
+  width, height = image.size
+
+  image_data = np.asarray(image).tobytes()
+  image_id = insert_image(width, height, image_data)
+
+  temp_file = tempfile.NamedTemporaryFile()
+  temp_file.write(image_data)
+  temp_file.seek(0)
+
+  faces = RetinaFace.detect_faces(temp_file.name)
+  for face in faces:
+
+    x0 = int(faces[face]['facial_area'][0])
+    y0 = int(faces[face]['facial_area'][1])
+    x1 = int(faces[face]['facial_area'][2])
+    y1 = int(faces[face]['facial_area'][3])
+
+    face_id = insert_face(x0, y0, x1, y1)
+
+    for landmark in faces[face]['landmarks']:
+
+      x = int(faces[face]['landmarks'][landmark][0])
+      y = int(faces[face]['landmarks'][landmark][0])
+
+      insert_facial_landmark(face_id, landmark, x, y)
+
+    insert_image_face(image_id, face_id)
+
+  insert_data_set_entry(data_set_id, image_id, name)
+
 
 @app.route('/data-set-entries/<int:id>', methods=['GET', 'DELETE', 'POST'])
 def data_set_entry(id):
@@ -132,17 +206,14 @@ def data_set_upload(id):
   if image is None:
     return err('Missing image file')
   else:
-    extension = pathlib.Path(image.filename).suffix
-    if extension not in ['.png', '.jpeg']:
+    path = pathlib.Path(image.filename)
+    if path.suffix not in ['.png', '.jpeg']:
       return err('Invalid file extension')
     else:
       try:
         pil_image = PIL.Image.open(image)
-        id = process_pil_image(pil_image)
-        if id is not None:
-          return ok()
-        else:
-          return err('Could not process image')
+        process_pil_image(id, path.stem, pil_image)
+        return ok()
 
       except PIL.UnidentifiedImageError:
         return err('Invalid image file')
