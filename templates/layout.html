@@ -35,7 +35,6 @@
 
       // Flash utility methods
       function flash_message(message, type) {
-        msg_txt = $(`<p>${message}</p>`)
         cls_btn = $('<i class="close icon"></i>')
         msg_obj = $(`<div class="ui ${type} message"></div>`)
 
@@ -47,7 +46,7 @@
           })
 
         msg_obj.append(cls_btn)
-        msg_obj.append(msg_txt)
+        msg_obj.append(message)
 
         $('#message-container').append(msg_obj)
       }
