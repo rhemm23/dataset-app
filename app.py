@@ -12,6 +12,13 @@ def get_image_count():
   cursor.close()
   return count
 
+@app.route('/original-images')
+def original_images():
+  return render_template(
+    'original_images.html',
+    title='Original Images'
+  )
+
 @app.route('/')
 def index():
     return render_template(
