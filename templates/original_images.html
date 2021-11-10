@@ -1,12 +1,12 @@
 {% extends "layout.html" %}
 {% block body %}
-<table class="ui selectable inverted celled table">
+<table class="ui selectable celled table">
   <thead>
     <tr>
       <th>ID</th>
-      <th>Name</th>
       <th>Width</th>
       <th>Height</th>
+      <th>Name</th>
     </tr>
   </thead>
   <tbody>
@@ -15,7 +15,7 @@
         <td class="collapsing">{{ image[0] }}</td>
         <td class="collapsing">{{ image[1] }}</td>
         <td class="collapsing">{{ image[2] }}</td>
-        <td class="collapsing">{{ image[3] }}</td>
+        <td>{{ image[3] }}</td>
       </tr>
     {% endfor %}
   </tbody>

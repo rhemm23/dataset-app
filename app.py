@@ -14,7 +14,7 @@ def get_image_count():
 
 def get_original_images():
   cursor = conn.cursor()
-  cursor.execute("""SELECT id, google_file_name, width, height FROM images ORDER BY id asc LIMIT 50;""")
+  cursor.execute("""SELECT id, width, height, google_file_name FROM images ORDER BY id asc LIMIT 50;""")
   images = cursor.fetchall()
   cursor.close()
   return images
