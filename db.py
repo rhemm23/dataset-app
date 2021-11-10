@@ -4,6 +4,48 @@ class DB:
   def __init__(self):
     self.conn = psql.connect("dbname=capstone user=admin password=admin")
 
+  def facial_landmark_count(self):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT COUNT(*) FROM facial_landmarks;""")
+    count = cursor.fetchone()[0]
+    cursor.close()
+    return count
+
+  def face_count(self):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT COUNT(*) FROM faces;""")
+    count = cursor.fetchone()[0]
+    cursor.close()
+    return count
+
+  def cropped_image_count(self):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT COUNT(*) FROM cropped_images;""")
+    count = cursor.fetchone()[0]
+    cursor.close()
+    return count
+
+  def image_count(self):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT COUNT(*) FROM images;""")
+    count = cursor.fetchone()[0]
+    cursor.close()
+    return count
+
+  def data_set_entry_count(self):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT COUNT(*) FROM data_set_entries;""")
+    count = cursor.fetchone()[0]
+    cursor.close()
+    return count
+
+  def data_set_count(self):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT COUNT(*) FROM data_sets;""")
+    count = cursor.fetchone()[0]
+    cursor.close()
+    return count
+
   def delete_data_set(self, id):
     cursor = self.conn.cursor()
     cursor.execute("""WITH deleted AS (DELETE FROM data_sets WHERE id = %s) SELECT COUNT(*) FROM deleted;""", (id,))
