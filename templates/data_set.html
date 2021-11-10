@@ -170,7 +170,7 @@
         success: function(data) {
           $(`#data-set-entry-${id}`)
             .remove()
-          flash_success(`Successfully deleted data set entry '${data.data.name}'`)
+          flash_success('Successfully deleted data set entry')
         },
         error: function(data) {
           flash_error('Failed to delete data set entry')
