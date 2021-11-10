@@ -89,6 +89,8 @@
       .click(function() {
         $('#upload-image-submit-btn')
           .prop('disabled', true)
+        $('#upload-image-input')
+          .val(null)
         $('#upload-image-modal')
           .modal({
             closable: true,
@@ -104,6 +106,14 @@
       .click(function() {
         $('#upload-image-input')
           .click()
+      })
+
+    // On file selected
+    $('#upload-image-input')
+      .change(function() {
+        var files = $(this).prop('files')
+        $('#upload-image-submit-btn')
+          .prop('disabled', files.length == 1)
       })
 
     function delete_data_set_entry(id) {
