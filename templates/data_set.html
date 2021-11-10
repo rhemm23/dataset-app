@@ -103,7 +103,25 @@
           .modal({
             closable: true,
             onApprove: function() {
-              
+
+              var form_data = new FormData()
+              var image = $('#upload-image-input').prop('files')[0]
+
+              form_data.append('image', image)
+
+              $.ajax({
+                url: '/data-sets/{{ data_set_id }}/upload',
+                type: 'POST',
+                data: form_data,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+
+                },
+                error: function(data) {
+
+                }
+              })
             }
           })
           .modal('show')

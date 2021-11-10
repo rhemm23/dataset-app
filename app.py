@@ -1,6 +1,8 @@
 from flask.templating import render_template
 import psycopg2 as psql
+import pathlib
 import flask
+import PIL
 
 app = flask.Flask(__name__)
 conn = psql.connect("dbname=capstone user=admin password=admin")
@@ -73,50 +75,47 @@ def get_data_sets():
   cursor.close()
   return data_sets
 
+def ok(data=None):
+  res = {
+    'status': 'success',
+  }
+  if data is not None:
+    res['data'] = data
+  return flask.jsonify(res), 200
+
+def err(errors=None):
+  res = {
+    'status': 'failed'
+  }
+  if errors is not None:
+    if isinstance(errors, list):
+      res['errors'] = errors
+    else:
+      res['errors'] = [errors]
+  return flask.jsonify(res), 400
+
+def process_pil_image(image):
+  print('test')
+
 @app.route('/data-set-entries/<int:id>', methods=['GET', 'DELETE', 'POST'])
 def data_set_entry(id):
   if flask.request.method == 'DELETE':
     if delete_data_set_entry(id):
-      res = {
-        'status': 'success'
-      }
-      return flask.jsonify(res), 200
+      return ok()
     else:
-      res = {
-        'status': 'failed',
-        'errors': [
-          'Data set entry does not exist'
-        ]
-      }
-      return flask.jsonify(res), 400
+      return err('Data set entry does not exist')
   elif flask.request.method == 'POST':
     name = flask.request.form['name']
     if name is None or name == '':
-      res = {
-        'status': 'failed',
-        'errors': [
-          'Invalid name parameter'
-        ]
-      }
-      return flask.jsonify(res), 400
+      return err('Invalid name parameter')
     else:
       if update_data_set_entry(id, name):
-        res = {
-          'status': 'success',
-          'data': {
-            'id': id,
-            'name': name
-          }
-        }
-        return flask.jsonify(res), 200
+        return ok({
+          'id': id,
+          'name': name
+        })
       else:
-        res = {
-          'status': 'failed',
-          'errors': [
-            'Data set entry does not exist'
-          ]
-        }
-        return flask.jsonify(res), 400
+        return err('Data set entry does not exist')
   else:
     data_set_entry = get_data_set_entry(id)
     if data_set_entry is None:
@@ -127,50 +126,46 @@ def data_set_entry(id):
         title='Data Set Entry - {}'.format(data_set_entry[1])
       )
 
+@app.route('/data-sets/<int:id>/upload', methods=['POST'])
+def data_set_upload(id):
+  image = flask.request.files['image']
+  if image is None:
+    return err('Missing image file')
+  else:
+    extension = pathlib.Path(image.filename).suffix
+    if extension not in ['.png', '.jpeg']:
+      return err('Invalid file extension')
+    else:
+      try:
+        pil_image = PIL.Image.open(image)
+        id = process_pil_image(pil_image)
+        if id is not None:
+          return ok()
+        else:
+          return err('Could not process image')
+
+      except PIL.UnidentifiedImageError:
+        return err('Invalid image file')
+
 @app.route('/data-sets/<int:id>', methods=['GET', 'DELETE', 'POST'])
 def data_set(id):
   if flask.request.method == 'DELETE':
     if delete_data_set(id):
-      res = {
-        'status': 'success'
-      }
-      return flask.jsonify(res), 200
+      return ok()
     else:
-      res = {
-        'status': 'failed',
-        'errors': [
-          'Data set does not exist'
-        ]
-      }
-      return flask.jsonify(res), 400
+      return err('Data set does not exist')
   elif flask.request.method == 'POST':
     name = flask.request.form['name']
     if name is None or name == '':
-      res = {
-        'status': 'failed',
-        'errors': [
-          'Invalid name parameter'
-        ]
-      }
-      return flask.jsonify(res), 400
+      return err('Invalid name parameter')
     else:
       if update_data_set(id, name):
-        res = {
-          'status': 'success',
-          'data': {
-            'id': id,
-            'name': name
-          }
-        }
-        return flask.jsonify(res), 200
+        return ok({
+          'id': id,
+          'name': name
+        })
       else:
-        res = {
-          'status': 'failed',
-          'errors': [
-            'Data set does not exist'
-          ]
-        }
-        return flask.jsonify(res), 400
+        return err('Data set does not exist')
   else:
     data_set = get_data_set(id)
     if data_set is None:
@@ -178,7 +173,8 @@ def data_set(id):
     else:
       return render_template(
         'data_set.html',
-        title='Data Set - {}'.format(data_set[1])
+        title='Data Set - {}'.format(data_set[1]),
+        data_set_id=id
       )
 
 @app.route('/data-sets', methods=['GET', 'POST'])
@@ -186,22 +182,10 @@ def data_sets():
   if flask.request.method == 'POST':
     name = flask.request.form['name']
     if name is None or name == '':
-      res = {
-        'status': 'failed',
-        'errors': [
-          'Invalid name parameter'
-        ]
-      }
-      return flask.jsonify(res), 400
+      return err('Invalid name parameter')
     else:
       id = insert_data_set(name)
-      res = {
-        'status': 'success',
-        'data': {
-          'id': id
-        }
-      }
-      return flask.jsonify(res), 200
+      return ok({ 'id': id })
   else:
     return flask.render_template(
       'data_sets.html',
