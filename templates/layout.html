@@ -25,13 +25,12 @@
       {% block body %}{% endblock %}
     </div>
     <script>
-
       // Close message on exit click
-      $('.message .close')
-        .on('click', function() {
+      $('.close.icon')
+        .click(function() {
           $(this)
-            .closest('.message')
-            .transition('fade')
+            .parent()
+            .remove()
         })
 
       // Flash utility methods
