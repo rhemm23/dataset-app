@@ -1,94 +1,40 @@
-from flask import Flask, render_template, request, abort
+from flask import Flask, render_template
 
 import psycopg2 as psql
-import base64
-import math
 
 app = Flask(__name__)
-conn = psql.connect("dbname=faces user=admin password=admin")
+conn = psql.connect("dbname=capstone user=admin password=admin")
 
-def get_image_count():
+def get_data_set_count():
   cursor = conn.cursor()
-  cursor.execute("""SELECT COUNT(*) FROM images;""")
-  count = cursor.fetchone()[0]
+  cursor.execute("""SELECT COUNT(*) FROM data_sets;""")
+  data_set_count = cursor.fetchone()[0]
   cursor.close()
-  return count
+  return data_set_count
 
-def get_original_images(page):
+def get_data_sets():
   cursor = conn.cursor()
-  cursor.execute("""SELECT id, width, height, google_file_name FROM images ORDER BY id asc LIMIT 50 OFFSET %s;""", (page * 50,))
-  images = cursor.fetchall()
+  cursor.execute("""SELECT id, name FROM data_sets ORDER BY id ASC;""")
+  data_sets = cursor.fetchall()
   cursor.close()
-  return images
+  return data_sets
 
-def get_original_image(id):
-  cursor = conn.cursor()
-  cursor.execute("""SELECT id, width, height, google_file_name, data FROM images WHERE id = %s;""", (id,))
-  image = cursor.fetchone()
-  cursor.close()
-  return image
-
-@app.route('/original-images')
-def original_images():
-
-  # Determine page number
-  page = request.args.get('page')
-  if page is None:
-    page = 0
-  else:
-    try:
-      page = int(page)
-    except:
-      page = 0
-
-  image_count = get_image_count()
-  page_count = math.ceil(image_count / 50)
-
-  if page >= page_count:
-    page = page_count - 1
-  elif page < 0:
-    page = 0
-
-  images = get_original_images(page)
-
+@app.route('/data-sets')
+def data_sets():
   return render_template(
-    'original_images.html',
-    title='Original Images',
-    page=page,
-    images=images,
-    page_count=page_count
-  )
-
-@app.route('/original-image/<id>')
-def original_image(id):
-
-  if id is None:
-    abort(404)
-  else:
-    try:
-      id = int(id)
-    except:
-      abort(404)
-
-  image = get_original_image(id)
-
-  if image is None:
-    abort(404)
-
-  return render_template(
-    'original_image.html',
-    title = image[3],
-    image_src = 'data:image/jpeg;base64,{}'.format(base64.b64encode(image[4]))
+    'data_sets.html',
+    title='Data Sets',
+    data_sets=get_data_sets()
   )
 
 @app.route('/')
 def index():
-    return render_template(
-      'index.html',
-      title='Dataset Manager',
-      image_count=get_image_count()
-    )
+  return render_template(
+    'index.html',
+    title='Dataset Manager',
+    data_set_count=get_data_set_count()
+  )
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000)
+  app.run(host='127.0.0.1', port=5000)
 
