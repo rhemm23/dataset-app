@@ -25,30 +25,11 @@
       {% block body %}{% endblock %}
     </div>
     <script>
-      // Close message on exit click
-      $('.close.icon')
-        .click(function() {
-          $(this)
-            .parent()
-            .remove()
-        })
-
       // Flash utility methods
       function flash_message(message, type) {
-        cls_btn = $('<i class="close icon"></i>')
-        msg_obj = $(`<div class="ui ${type} message"></div>`)
-
-        cls_btn
-          .click(function() {
-            $(this)
-              .parent()
-              .remove()
-          })
-
-        msg_obj.append(cls_btn)
-        msg_obj.append(message)
-
+        msg_obj = $(`<div class="ui ${type} message">${message}</div>`)
         $('#message-container').append(msg_obj)
+        setTimeout(() => { msg_obj.remove() }, 3000)
       }
       function flash_success(message) {
         flash_message(message, 'success')
