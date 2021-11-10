@@ -111,9 +111,8 @@
     // On file selected
     $('#upload-image-input')
       .on('change', function() {
-        var files = $(this).prop('files')
         $('#upload-image-submit-btn')
-          .prop('disabled', files.length == 1)
+          .prop('disabled', $(this).val() != null)
       })
 
     function delete_data_set_entry(id) {
