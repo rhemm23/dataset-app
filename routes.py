@@ -1,5 +1,5 @@
 from flask import render_template, abort
-from __main__ import app
+from app import app
 from db import DB
 
 db = DB()

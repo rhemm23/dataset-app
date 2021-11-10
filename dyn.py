@@ -1,6 +1,6 @@
 from flask import abort, send_file
-from __main__ import app
 from PIL import Image, ImageDraw
+from app import app
 from db import DB
 import io
 
