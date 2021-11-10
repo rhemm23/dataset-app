@@ -11,6 +11,13 @@ import PIL
 app = flask.Flask(__name__)
 conn = psql.connect("dbname=capstone user=admin password=admin")
 
+def get_data_set_entries(data_set_id):
+  cursor = conn.cursor()
+  cursor.execute("""SELECT id, name FROM data_set_entries WHERE data_set_id = %s ORDER BY id ASC;""", (data_set_id,))
+  data_set_entries = cursor.fetchall()
+  cursor.close()
+  return data_set_entries
+
 def insert_data_set_entry(data_set_id, image_id, name):
   cursor = conn.cursor()
   cursor.execute("""INSERT INTO data_set_entries (data_set_id, image_id, name) VALUES (%s, %s, %s) RETURNING id;""", (data_set_id, image_id, name))
@@ -251,6 +258,7 @@ def data_set(id):
       return render_template(
         'data_set.html',
         title='Data Set - {}'.format(data_set[1]),
+        data_set_entries=get_data_set_entries(id),
         data_set_id=id
       )
 
