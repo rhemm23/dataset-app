@@ -1,15 +1,30 @@
 <html>
-	<head>
-		<title>Dataset manager</title>
-		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/semantic.journal.css') }}">
-		<script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='js/semantic.min.js') }}"></script>
-	<head>
-	<body>
-		<div class="ui container" style="padding-top:5em;">
-			<h1>Dataset Manager</h1>
-			<div class="ui divider" />
-		</div>
-	</body>
+  <head>
+    <title>Dataset manager</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/semantic.journal.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/semantic.min.js') }}"></script>
+  <head>
+  <body>
+    <div class="ui container" style="padding-top:5em;">
+      <h1>Dataset Manager</h1>
+      <div class="ui divider" />
+      <div class="ui link cards">
+        <div class="card">
+          <div class="content">
+            <div class="header">
+              Original Images
+            </div>
+          </div>
+          <div class="extra content">
+            <span>
+              <i class="image outline icon"></i>
+              {{ image_count }} images
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
