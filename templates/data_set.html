@@ -1,4 +1,51 @@
 {% extends "layout.html" %}
 {% block body %}
-  <p>Hello</p>
+  <table class="ui celled table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for data_set_entry in data_set_entries %}
+        <tr id="data-set-entry-{{ data_set_entry[0] }}">
+          <td class="collapsing">{{ data_set_entry[0] }}</td>
+          <td id="data-set-entry-{{ data_set_entry[0] }}-name">{{ data_set_entry[1] }}</td>
+          <td>
+            <div
+              onclick="window.location='/data-set-entries/{{ data_set_entry[0] }}'"
+              class="ui blue label"
+              style="cursor: pointer;"
+            >
+              View
+            </div>
+            <div
+              onclick="edit_data_set_entry({{ data_set_entry[0] }})"
+              class="ui red label"
+              style="cursor: pointer;"
+            >
+              Edit
+            </div>
+            <div
+              onclick="delete_data_set_entry({{ data_set_entry[0] }})"
+              class="ui black label"
+              style="cursor: pointer;"
+            >
+              Delete
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <script>
+    function delete_data_set_entry(id) {
+      
+    }
+    function edit_data_set_entry(id) {
+
+    }
+  </script>
 {% endblock %}

@@ -5,6 +5,29 @@ import flask
 app = flask.Flask(__name__)
 conn = psql.connect("dbname=capstone user=admin password=admin")
 
+def update_data_set_entry(id, name):
+  cursor = conn.cursor()
+  cursor.execute("""WITH updated AS (UPDATE data_set_entries SET name = %s WHERE id = %s RETURNING *) SELECT COUNT(*) FROM updated;""", (name, id))
+  upd_cnt = cursor.fetchone()[0]
+  conn.commit()
+  cursor.close()
+  return upd_cnt > 0
+
+def delete_data_set_entry(id):
+  cursor = conn.cursor()
+  cursor.execute("""WITH deleted AS (DELETE FROM data_set_entries WHERE id = %s RETURNING *) SELECT COUNT(*) FROM deleted;""", (id,))
+  del_cnt = cursor.fetchone()[0]
+  conn.commit()
+  cursor.close()
+  return del_cnt > 0
+
+def get_data_set_entry(id):
+  cursor = conn.cursor()
+  cursor.execute("""SELECT id, name FROM data_set_entries WHERE id = %s;""", (id,))
+  data_set = cursor.fetchone()
+  cursor.close()
+  return data_set
+
 def get_data_set(id):
   cursor = conn.cursor()
   cursor.execute("""SELECT id, name FROM data_sets WHERE id = %s;""", (id,))
@@ -49,6 +72,60 @@ def get_data_sets():
   data_sets = cursor.fetchall()
   cursor.close()
   return data_sets
+
+@app.route('/data-set-entries/<int:id>', methods=['GET', 'DELETE', 'POST'])
+def data_set_entry(id):
+  if flask.request.method == 'DELETE':
+    if delete_data_set_entry(id):
+      res = {
+        'status': 'success'
+      }
+      return flask.jsonify(res), 200
+    else:
+      res = {
+        'status': 'failed',
+        'errors': [
+          'Data set entry does not exist'
+        ]
+      }
+      return flask.jsonify(res), 400
+  elif flask.request.method == 'POST':
+    name = flask.request.form['name']
+    if name is None or name == '':
+      res = {
+        'status': 'failed',
+        'errors': [
+          'Invalid name parameter'
+        ]
+      }
+      return flask.jsonify(res), 400
+    else:
+      if update_data_set_entry(id, name):
+        res = {
+          'status': 'success',
+          'data': {
+            'id': id,
+            'name': name
+          }
+        }
+        return flask.jsonify(res), 200
+      else:
+        res = {
+          'status': 'failed',
+          'errors': [
+            'Data set entry does not exist'
+          ]
+        }
+        return flask.jsonify(res), 400
+  else:
+    data_set_entry = get_data_set_entry(id)
+    if data_set_entry is None:
+      flask.abort(404)
+    else:
+      return render_template(
+        'data_set_entry.html',
+        title='Data Set Entry - {}'.format(data_set_entry[1])
+      )
 
 @app.route('/data-sets/<int:id>', methods=['GET', 'DELETE', 'POST'])
 def data_set(id):
@@ -101,7 +178,7 @@ def data_set(id):
     else:
       return render_template(
         'data_set.html',
-        title=data_set[1]
+        title='Data Set - {}'.format(data_set[1])
       )
 
 @app.route('/data-sets', methods=['GET', 'POST'])
