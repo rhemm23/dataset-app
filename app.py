@@ -170,6 +170,11 @@ def process_pil_image(data_set_id, name, image):
 
   insert_data_set_entry(data_set_id, image_id, name)
 
+@app.before_request
+def handle_chunking():
+  transfer_encoding = flask.request.headers.get("Transfer-Encoding", None)
+  if transfer_encoding == u"chunked":
+    flask.request.environ["wsgi.input_terminated"] = True
 
 @app.route('/data-set-entries/<int:id>', methods=['GET', 'DELETE', 'POST'])
 def data_set_entry(id):
