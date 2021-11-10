@@ -76,12 +76,14 @@
             onApprove: function() {
               $.ajax({
                 url: '/data-sets',
+                dataType: 'json',
                 type: 'POST',
                 data: {
                   name: $('#new-data-set-name-input').val()
                 },
                 success: function(data) {
-                  var obj = JSON.parse(data);
+                  console.log(data)
+                  var obj = JSON.parse(data)
                   window.location = `/data-sets/${obj['data']['id']}`
                 },
                 error: function(data) {
