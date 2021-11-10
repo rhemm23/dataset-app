@@ -8,18 +8,7 @@
   <head>
   <body>
     <div class="ui container" style="padding-top: 5em; padding-bottom: 5em;">
-      <div id="message-container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="ui {{ category }} message">
-                <i class="close icon"></i>
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-      </div>
+      <div id="message-container"></div>
       <h1>{{ title }}</h1>
       <div class="ui divider"></div>
       {% block body %}{% endblock %}

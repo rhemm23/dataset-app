@@ -4,6 +4,46 @@ class DB:
   def __init__(self):
     self.conn = psql.connect("dbname=capstone user=admin password=admin")
 
+  def get_data_set_entry(self, id):
+    cursor = self.conn.cursor()
+    cursor.execute(
+      """
+      SELECT
+        data_set_entries.name,
+        images.id,
+        images.width,
+        images.height,
+        cropped_images.id
+      FROM data_set_entries
+      INNER JOIN images ON data_set_entries.id = images.data_set_entry_id
+      INNER JOIN cropped_images ON images.id = cropped_images.image_id
+      WHERE data_set_entries.id = %s;
+      """, (id,))
+    data_set_entry = cursor.fetchone()
+    cursor.close()
+    return data_set_entry
+
+  def get_data_set_entries(self, id):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT id, name FROM data_set_entries WHERE data_set_id = %s;""", (id,))
+    data_set_entries = cursor.fetchall()
+    cursor.close()
+    return data_set_entries
+
+  def get_data_set(self, id):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT id, name FROM data_sets WHERE id = %s;""", (id,))
+    data_set = cursor.fetchone()
+    cursor.close()
+    return data_set
+
+  def get_data_sets(self):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT id, name FROM data_sets;""")
+    data_sets = cursor.fetchall()
+    cursor.close()
+    return data_sets
+
   def get_cropped_image_faces(self, id):
     cursor = self.conn.cursor()
     cursor.execute("""SELECT x0, y0, x1, y1 FROM faces WHERE cropped_image_id = %s;""", (id,))
