@@ -46,6 +46,27 @@
       {% endfor %}
     </tbody>
   </table>
+  <div id="update-name-modal" class="ui modal">
+    <div class="header">
+      Edit Data Set Entry
+    </div>
+    <div class="content">
+      <div class="ui form">
+        <div id="update-name-field" class="field">
+          <label>Name</label>
+          <input id="update-name-input" type="text" placeholder="Image description">
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="ui cancel button">
+        Cancel
+      </button>
+      <button id="update-name-submit-btn" class="ui positive button">
+        Update
+      </button>
+    </div>
+  </div>
   <div
     id="upload-image-modal"
     class="ui modal">
@@ -178,7 +199,51 @@
       })
     }
     function edit_data_set_entry(id) {
-
+      var current_name = $(`#data-set-entry-${id}-name`).text()
+      $('#update-name-input')
+        .val(current_name)
+      $('#update-name-submit-btn')
+        .prop('disabled', true)
+      $('#update-name-input')
+        .on('input', function() {
+          name = $('#update-name-input').val()
+          if (name == '' || name == current_name) {
+            $('#update-name-submit-btn')
+              .prop('disabled', true)
+          } else {
+            $('#update-name-submit-btn')
+              .prop('disabled', false)
+          }
+          if (name == '') {
+            $('#update-name-field')
+              .addClass('error')
+          } else {
+            $('#update-name-field')
+              .removeClass('error')
+          }
+        })
+      $('#update-name-modal')
+        .modal({
+          closable: true,
+          onApprove: function() {
+            var fin_name = $('#update-name-input').val()
+            $.ajax({
+              url: `/data-set-entries/${id}`,
+              type: 'POST',
+              data: {
+                name: fin_name
+              },
+              success: function(data) {
+                $(`data-set-entry-${id}-name`).text(fin_name)
+                flash_success(`Successfully changed data set entry '${current_name}'' to '${fin_name}'`)
+              },
+              error: function(data) {
+                flash_error('Failed to update data set entry')
+              }
+            })
+          }
+        })
+        .modal('show')
     }
   </script>
 {% endblock %}
