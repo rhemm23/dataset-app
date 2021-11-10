@@ -196,6 +196,7 @@ def err(errors=None):
 def process_pil_image(data_set_id, name, image):
   image = image.convert('RGB')
   width, height = image.size
+  print(image.size)
 
   image_data = np.asarray(image).tobytes()
   image_id = insert_image(width, height, image_data)
