@@ -166,7 +166,7 @@
                 name: $('#new-data-set-name-input').val()
               },
               success: function(data) {
-                $(`#data-set-${id}-name`).val(data.data.name)
+                $(`#data-set-${id}-name`).text(data.data.name)
                 flash_success(`Successfully changed the name of data set '${current_name}' to '${data.data.name}'`)
               },
               error: function(data) {
