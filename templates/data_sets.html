@@ -1,39 +1,47 @@
 {% extends "layout.html" %}
 {% block body %}
-  <div id="content">
-    <div
-      id="new-data-set-btn"
-      class="ui right floated primary button"
-    >
-      New Data Set
+  <div id="ui grid">
+    <div class="one column row">
+      <div class="column">
+        <div
+          id="new-data-set-btn"
+          class="ui right floated primary button"
+        >
+          New Data Set
+        </div>
+      </div>
     </div>
-    <table class="ui celled table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for data_set in data_sets %}
-          <tr id="data-set-{{ data_set[0] }}">
-            <td class="collapsing">{{ data_set[0] }}</td>
-            <td>{{ data_set[1] }}</td>
-            <td>
-              <div class="ui blue label">View</div>
-              <div
-                onclick="delete_data_set({{ data_set[0] }})"
-                class="ui black label"
-                style="cursor: pointer;"
-              >
-                Delete
-              </div>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="one column row">
+      <div class="column">
+        <table class="ui celled table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for data_set in data_sets %}
+              <tr id="data-set-{{ data_set[0] }}">
+                <td class="collapsing">{{ data_set[0] }}</td>
+                <td>{{ data_set[1] }}</td>
+                <td>
+                  <div class="ui blue label">View</div>
+                  <div
+                    onclick="delete_data_set({{ data_set[0] }})"
+                    class="ui black label"
+                    style="cursor: pointer;"
+                  >
+                    Delete
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
   <div
     id="new-data-set-modal"
