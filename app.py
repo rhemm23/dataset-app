@@ -68,11 +68,19 @@ def update_data_set_entry(id, name):
 
 def delete_data_set_entry(id):
   cursor = conn.cursor()
-  cursor.execute("""WITH deleted AS (DELETE FROM data_set_entries WHERE id = %s RETURNING *) SELECT COUNT(*) FROM deleted;""", (id,))
-  del_cnt = cursor.fetchone()[0]
+  cursor.execute("""SELECT image_id FROM data_set_entries WHERE id = %s;""", (id,))
+  image_id = cursor.fetchone()[0]
+  if image_id is None:
+    return False
+  cursor.execute("""DELETE FROM data_set_entries WHERE id = %s;""", (id,))
+  cursor.execute("""SELECT face_id FROM image_faces WHERE image_id = %s;""", (image_id,))
+  records = cursor.fetchall()
+  face_ids = [record[0] for record in records]
+  cursor.execute("""DELETE FROM faces WHERE id IN %s;""", (face_ids,))
+  cursor.execute("""DELETE FROM images WHERE id = %s;""", (image_id,))
   conn.commit()
   cursor.close()
-  return del_cnt > 0
+  return True
 
 def get_data_set_entry(id):
   cursor = conn.cursor()
