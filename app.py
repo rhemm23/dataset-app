@@ -87,8 +87,10 @@ def get_image(id):
   cursor = conn.cursor()
   cursor.execute("""SELECT width, height, data FROM images WHERE id = %s;""", (id,))
   image = cursor.fetchone()
+  cursor.execute("""SELECT f.x0, f.y0, f.x1, f.y1 FROM image_faces AS imf INNER JOIN faces AS f ON imf.face_id = f.id WHERE imf.image_id = %s;""", (id,))
+  bboxes = cursor.fetchall()
   cursor.close()
-  return image
+  return image, bboxes
 
 def get_data_set_entry(id):
   cursor = conn.cursor()
@@ -202,12 +204,16 @@ def handle_chunking():
 
 @app.route('/images/<int:id>', methods=['GET'])
 def image(id):
-  image = get_image(id)
+  image, bboxes = get_image(id)
   if image is None:
     flask.abort(404)
   else:
     image_arr = np.frombuffer(image[2], dtype=np.uint8).reshape((image[0], image[1], 3))
     image_pil = PIL.Image.fromarray(image_arr, mode='RGB')
+    image_drw = PIL.ImageDraw.Draw(image_pil)
+
+    for bbox in bboxes:
+      image_drw.rectangle(bbox, outline='red', width=10)
 
     image_io = io.BytesIO()
     image_pil.save(image_io, 'PNG')
