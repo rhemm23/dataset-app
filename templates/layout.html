@@ -8,27 +8,42 @@
   <head>
   <body>
     <div class="ui container" style="padding-top: 5em; padding-bottom: 5em;">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="ui {{ category }} message">
-              <i class="close icon"></i>
-              {{ message }}
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
+      <div id="message-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="ui {{ category }} message">
+                <i class="close icon"></i>
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
       <h1>{{ title }}</h1>
       <div class="ui divider"></div>
       {% block body %}{% endblock %}
     </div>
     <script>
+
+      // Close message on exit click
       $('.message .close')
         .on('click', function() {
           $(this)
             .closest('.message')
             .transition('fade')
         })
+
+      // Flash utility methods
+      function flash_message(message, type) {
+        $('#message-container').append(`<div class="ui ${type} message"><i class="close icon"></i>${message}</div>`)
+      }
+      function flash_success(message) {
+        flash_message(message, 'success')
+      }
+      function flash_error(message) {
+        flash_message(message, 'error')
+      }
     </script>
   </body>
 </html>

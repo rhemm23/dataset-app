@@ -17,7 +17,9 @@
             <div class="ui blue label">View</div>
             <div
               onclick="delete_data_set({{ data_set[0] }})"
-              class="ui black label">
+              class="ui black label"
+              style="cursor: pointer;"
+            >
               Delete
             </div>
           </td>
@@ -32,6 +34,7 @@
         type: 'DELETE',
         success: function(data) {
           $(`#data-set-${id}`).remove()
+          flash_success('Successfully deleted data set')
         }
       })
     }
