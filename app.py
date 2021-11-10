@@ -86,7 +86,7 @@ def update_data_set_entry(id, name):
 
 def delete_data_set_entry(id):
   cursor = conn.cursor()
-  cursor.execute("""SELECT image_id, ci.id FROM data_set_entries AS dse INNER JOIN cropped_images AS ci ON dse.image_id = ci.image_id WHERE dse.id = %s;""", (id,))
+  cursor.execute("""SELECT dse.image_id, ci.id FROM data_set_entries AS dse INNER JOIN cropped_images AS ci ON dse.image_id = ci.image_id WHERE dse.id = %s;""", (id,))
   image_ids = cursor.fetchone()
   if image_ids is None:
     return False
@@ -263,7 +263,7 @@ def process_pil_image(data_set_id, name, image):
   cropped_image = cropped_image.crop((crop_offset_x, crop_offset_y, crop_offset_x + 300, crop_offset_y + 300))
   cropped_image = cropped_image.convert('L')
 
-  cropped_image_data = np.asarray(image).tobytes()
+  cropped_image_data = np.asarray(cropped_image).tobytes()
   cropped_image_id = insert_cropped_image(image_id, cropped_image_data)
 
   for face in faces:
