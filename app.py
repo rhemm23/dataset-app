@@ -12,6 +12,14 @@ def get_data_set(id):
   cursor.close()
   return data_set
 
+def update_data_set(id, name):
+  cursor = conn.cursor()
+  cursor.execute("""WITH updated AS (UPDATE data_sets SET name = %s WHERE id = %s RETURNING *) SELECT COUNT(*) FROM updated;""", (name, id))
+  upd_cnt = cursor.fetchone()[0]
+  conn.commit()
+  cursor.close()
+  return upd_cnt > 0
+
 def insert_data_set(name):
   cursor = conn.cursor()
   cursor.execute("""INSERT INTO data_sets (name) VALUES (%s) RETURNING id;""", (name,))
@@ -42,7 +50,7 @@ def get_data_sets():
   cursor.close()
   return data_sets
 
-@app.route('/data-sets/<int:id>', methods=['GET', 'DELETE'])
+@app.route('/data-sets/<int:id>', methods=['GET', 'DELETE', 'POST'])
 def data_set(id):
   if flask.request.method == 'DELETE':
     if delete_data_set(id):
@@ -58,6 +66,34 @@ def data_set(id):
         ]
       }
       return flask.jsonify(res), 400
+  elif flask.request.method == 'POST':
+    name = flask.request.form['name']
+    if name is None or name == '':
+      res = {
+        'status': 'failed',
+        'errors': [
+          'Invalid name parameter'
+        ]
+      }
+      return flask.jsonify(res), 400
+    else:
+      if update_data_set(id, name):
+        res = {
+          'status': 'success',
+          'data': {
+            'id': id,
+            'name': name
+          }
+        }
+        return flask.jsonify(res), 200
+      else:
+        res = {
+          'status': 'failed',
+          'errors': [
+            'Data set does not exist'
+          ]
+        }
+        return flask.jsonify(res), 400
   else:
     data_set = get_data_set(id)
     if data_set is None:

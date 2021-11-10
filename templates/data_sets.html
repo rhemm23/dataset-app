@@ -19,7 +19,7 @@
         {% for data_set in data_sets %}
           <tr id="data-set-{{ data_set[0] }}">
             <td class="collapsing">{{ data_set[0] }}</td>
-            <td>{{ data_set[1] }}</td>
+            <td id="data-set-{{ data_set[0] }}-name">{{ data_set[1] }}</td>
             <td>
               <div
                 onclick="window.location='/data-sets/{{ data_set[0] }}'"
@@ -27,6 +27,13 @@
                 style="cursor: pointer;"
               >
                 View
+              </div>
+              <div
+                onclick="edit_data_set({{ data_set[0] }})"
+                class="ui red label"
+                style="cursor: pointer;"
+              >
+                Edit
               </div>
               <div
                 onclick="delete_data_set({{ data_set[0] }})"
@@ -66,7 +73,6 @@
       <button
         id="new-data-set-create-btn"
         class="ui positive button"
-        disabled
       >
         Create
       </button>
@@ -76,6 +82,28 @@
     // Open modal on press
     $('#new-data-set-btn')
       .click(function() {
+        $('#new-data-set-create-btn')
+          .text('Create')
+        $('#new-data-set-create-btn')
+          .prop('disabled', true)
+        $('#new-data-set-name-input')
+          .val('')
+        
+        $('#new-data-set-name-input')
+          .on('input', function() {
+            if ($(this).val() == '') {
+              $('#new-data-set-name-field')
+                .addClass('error')
+              $('#new-data-set-create-btn')
+                .prop('disabled', true)
+            } else {
+              $('#new-data-set-name-field')
+                .removeClass('error')
+              $('#new-data-set-create-btn')
+                .prop('disabled', false)
+            }
+          })
+
         $('#new-data-set-modal')
           .modal({
             closable: true,
@@ -98,21 +126,56 @@
           .modal('show')
       })
 
-    // Error when name empty
-    $('#new-data-set-name-input')
-      .on('input', function() {
-        if ($(this).val() == '') {
-          $('#new-data-set-name-field')
-            .addClass('error')
-          $('#new-data-set-create-btn')
-            .prop('disabled', true)
-        } else {
-          $('#new-data-set-name-field')
-            .removeClass('error')
-          $('#new-data-set-create-btn')
-            .prop('disabled', false)
-        }
-      })
+    // Change data set name
+    function edit_data_set(id) {
+  
+      var current_name = $(`#data-set-${id}-name`).text()
+
+      $('#new-data-set-name-input')
+        .val(current_name)
+      $('#new-data-set-create-btn')
+        .prop('disabled', true)
+      $('#new-data-set-create-btn')
+        .text('Update')
+      $('#new-data-set-name-input')
+        .on('input', function() {
+          if ($(this).val() == current_name || $(this).val() == '') {
+            $('#new-data-set-create-btn')
+              .prop('disabled', true)
+          } else {
+            $('#new-data-set-create-btn')
+              .prop('disabled', false)
+          }
+          if ($(this).val() == '') {
+            $('#new-data-set-name-field')
+              .addClass('error')
+          } else {
+            $('#new-data-set-name-field')
+              .removeClass('error')
+          }
+        })
+
+      $('#new-data-set-modal')
+        .modal({
+          closable: true,
+          onApprove: function() {
+            $.ajax({
+              url: `/data-sets/${id}`,
+              type: 'POST',
+              data: {
+                name: $('#new-data-set-name-input').val()
+              },
+              success: function(data) {
+                console.log('Success')
+              },
+              error: function(data) {
+                flash_error(`Failed to update data set '${current_name}'`)
+              }
+            })
+          }
+        })
+        .modal('show')
+    }
 
     // On delete row
     function delete_data_set(id) {
