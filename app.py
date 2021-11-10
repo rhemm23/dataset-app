@@ -194,7 +194,6 @@ def err(errors=None):
   return flask.jsonify(res), 400
 
 def process_pil_image(data_set_id, name, image):
-  image = ImageOps.exif_transpose(image)
   image = image.convert('RGB')
   width, height = image.size
 
@@ -321,7 +320,7 @@ def image(id):
   if image is None:
     flask.abort(404)
   else:
-    image_arr = np.frombuffer(image[2], dtype=np.uint8).reshape((image[0], image[1], 3))
+    image_arr = np.frombuffer(image[2], dtype=np.uint8).reshape((image[1], image[0], 3))
     image_pil = Image.fromarray(image_arr, mode='RGB')
     image_drw = ImageDraw.Draw(image_pil)
 
