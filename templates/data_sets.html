@@ -57,7 +57,7 @@
       <div class="ui cancel button">
         Cancel
       </div>
-      <div class="ui positive button">
+      <div id="new-data-set-create-btn" class="ui positive button">
         Create
       </div>
     </div>
@@ -82,9 +82,13 @@
         if ($(this).val() == '') {
           $('#new-data-set-name-field')
             .addClass('error')
+          $('#new-data-set-create-btn')
+            .prop('disabled', true)
         } else {
           $('#new-data-set-name-field')
             .removeClass('error')
+          $('#new-data-set-create-btn')
+            .prop('disabled', false)
         }
       })
 
