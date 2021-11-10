@@ -30,13 +30,11 @@ def get_data_sets():
 def data_set(id):
   if flask.request.method == 'DELETE':
     if delete_data_set(id):
-      flask.flash('Successfully deleted data set', 'success')
+      return ('', 204)
     else:
-      flask.flash('Failed to delete data set, it does not exist', 'error')
-    flask.redirect('/')
+      return ('', 404)
   else:
-    flask.redirect('/')
-
+    return flask.redirect('/')
 
 @app.route('/data-sets')
 def data_sets():
