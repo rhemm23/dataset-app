@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
-  <button class="ui right floated button">
+  <button
+    id="new-data-set-btn"
+    style="padding-bottom: 1em;"
+    class="ui right floated primary button"
+  >
     New Data Set
   </button>
   <table class="ui celled table">
@@ -30,7 +34,37 @@
       {% endfor %}
     </tbody>
   </table>
+  <div
+    id="new-data-set-modal"
+    class="ui modal"
+  >
+    <div class="header">
+      New Data Set
+    </div>
+    <div class="actions">
+      <div class="ui cancel button">
+        Cancel
+      </div>
+      <div class="ui positive button">
+        Create
+      </div>
+    </div>
+  </div>
   <script>
+    // Open modal on press
+    $('#new-data-set-btn')
+      .click(function() {
+        $('#new-data-set-modal')
+          .modal({
+            closable: true,
+            onApprove: function() {
+              window.alert('approved!')
+            }
+          })
+          .modal('show')
+      })
+
+    // On delete row
     function delete_data_set(id) {
       $.ajax({
         url: `/data-sets/${id}`,
