@@ -104,6 +104,15 @@ def delete_data_set_entry(id):
   cursor.close()
   return True
 
+def get_cropped_image(id):
+  cursor = conn.cursor()
+  cursor.execute("""SELECT data FROM cropped_images WHERE id = %s;""", (id,))
+  cropped_image = cursor.fetchone()[0]
+  cursor.execute("""SELECT f.x0, f.y0, f.x1, f.y1 FROM cropped_image_faces AS cif INNER JOIN faces AS f ON cif.face_id = f.id WHERE cif.cropped_image_id = %s;""", (id,))
+  bboxes = cursor.fetchall()
+  cursor.close()
+  return cropped_image, bboxes
+
 def get_image(id):
   cursor = conn.cursor()
   cursor.execute("""SELECT width, height, data FROM images WHERE id = %s;""", (id,))
@@ -115,7 +124,7 @@ def get_image(id):
 
 def get_data_set_entry(id):
   cursor = conn.cursor()
-  cursor.execute("""SELECT dse.name, dse.image_id, img.width, img.height FROM data_set_entries AS dse INNER JOIN images AS img ON dse.image_id = img.id WHERE dse.id = %s;""", (id,))
+  cursor.execute("""SELECT dse.name, dse.image_id, img.width, img.height, ci.id FROM data_set_entries AS dse INNER JOIN images AS img ON dse.image_id = img.id INNER JOIN cropped_images AS ci ON dse.image_id = ci.image_id WHERE dse.id = %s;""", (id,))
   data_set = cursor.fetchone()
   cursor.close()
   return data_set
@@ -283,6 +292,25 @@ def handle_chunking():
   if transfer_encoding == u"chunked":
     flask.request.environ["wsgi.input_terminated"] = True
 
+@app.route('/cropped-images/<int:id>', methods=['GET'])
+def cropped_image(id):
+  cropped_image, bboxes = get_cropped_image(id)
+  if cropped_image is None:
+    flask.abort(404)
+  else:
+    image_arr = np.frombuffer(cropped_image, dtype=np.uint8).reshape((300, 300, 1))
+    image_pil = Image.fromarray(image_arr, mode='L')
+    image_drw = ImageDraw.Draw(image_pil)
+
+    for bbox in bboxes:
+      image_drw.rectangle(bbox, outline='black', width=3)
+
+    image_io = io.BytesIO()
+    image_pil.save(image_io, 'PNG')
+    image_io.seek(0)
+
+    return flask.send_file(image_io, mimetype='image/png')
+
 @app.route('/images/<int:id>', methods=['GET'])
 def image(id):
   image, bboxes = get_image(id)
@@ -330,6 +358,7 @@ def data_set_entry(id):
         'data_set_entry.html',
         title='Data Set Entry - {}'.format(data_set_entry[0]),
         image_id=data_set_entry[1],
+        cropped_image_id=data_set_entry[4],
         width=data_set_entry[2],
         height=data_set_entry[3]
       )
