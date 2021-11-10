@@ -176,7 +176,7 @@ def process_pil_image(data_set_id, name, image):
 
     insert_image_face(image_id, face_id)
 
-  insert_data_set_entry(data_set_id, image_id, name)
+  return insert_data_set_entry(data_set_id, image_id, name)
 
 @app.before_request
 def handle_chunking():
@@ -225,8 +225,11 @@ def data_set_upload(id):
     else:
       try:
         pil_image = PIL.Image.open(image)
-        process_pil_image(id, path.stem, pil_image)
-        return ok()
+        id = process_pil_image(id, path.stem, pil_image)
+        return ok({
+          'id': id,
+          'name': path.stem
+        })
 
       except PIL.UnidentifiedImageError:
         return err('Invalid image file')

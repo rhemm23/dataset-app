@@ -123,12 +123,16 @@
                     .dimmer('hide')
                   $('#upload-image-modal')
                     .modal('hide')
+
+                  window.location=`/data-set-entries/${data.data.id}`
                 },
                 error: function(data) {
                   $('#upload-image-modal')
                     .dimmer('hide')
                   $('#upload-image-modal')
                     .modal('hide')
+
+                  flash_error('Failed to upload image')
                 }
               })
 
