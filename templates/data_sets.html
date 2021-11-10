@@ -78,7 +78,7 @@
 
     // Error when name empty
     $('#new-data-set-name-input')
-      .on('input', ':text', function() {
+      .on('input', function() {
         if ($(this).val() == '') {
           $('#new-data-set-name-field')
             .addClass('error')
