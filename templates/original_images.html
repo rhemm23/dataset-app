@@ -27,10 +27,10 @@
       <tr>
         <th colspan="4">
           <div class="ui right floated pagination menu">
-            <a class="{{ 'icon disabled item' if page == 0 else 'icon item' }}">
+            <a class="{{ 'icon disabled item' if page == 0 else 'icon item' }}" href="{{ url_for('original_images', page = page - 1) }}">
               <i class="left chevron icon"></i>
             </a>
-            <a class="{{ 'icon disabled item' if page == page_count - 1 else 'icon item' }}">
+            <a class="{{ 'icon disabled item' if page == page_count - 1 else 'icon item' }}" href="{{ url_for('original_images', page = page + 1) }}">
               <i class="right chevron icon"></i>
             </a>
           </div>
