@@ -7,6 +7,7 @@ import tempfile
 import pathlib
 import flask
 import PIL
+import io
 
 app = flask.Flask(__name__)
 conn = psql.connect("dbname=capstone user=admin password=admin")
@@ -82,9 +83,16 @@ def delete_data_set_entry(id):
   cursor.close()
   return True
 
+def get_image(id):
+  cursor = conn.cursor()
+  cursor.execute("""SELECT width, height, data FROM images WHERE id = %s;""", (id,))
+  image = cursor.fetchone()
+  cursor.close()
+  return image
+
 def get_data_set_entry(id):
   cursor = conn.cursor()
-  cursor.execute("""SELECT id, name FROM data_set_entries WHERE id = %s;""", (id,))
+  cursor.execute("""SELECT name, image_id FROM data_set_entries WHERE id = %s;""", (id,))
   data_set = cursor.fetchone()
   cursor.close()
   return data_set
@@ -192,6 +200,21 @@ def handle_chunking():
   if transfer_encoding == u"chunked":
     flask.request.environ["wsgi.input_terminated"] = True
 
+@app.route('/images/<int:id>', methods=['GET'])
+def image(id):
+  image = get_image(id)
+  if image is None:
+    flask.abort(404)
+  else:
+    image_arr = np.frombuffer(image[2], dtype=np.uint8).reshape((3, image[0], image[1]))
+    image_pil = PIL.Image.fromarray(image_arr, mode='RGB')
+
+    image_io = io.BytesIO()
+    image_pil.save(image_io, 'PNG')
+    image_io.seek(0)
+
+    return flask.send_file(image_io, mimetype='image/png')
+
 @app.route('/data-set-entries/<int:id>', methods=['GET', 'DELETE', 'POST'])
 def data_set_entry(id):
   if flask.request.method == 'DELETE':
@@ -218,7 +241,8 @@ def data_set_entry(id):
     else:
       return render_template(
         'data_set_entry.html',
-        title='Data Set Entry - {}'.format(data_set_entry[1])
+        title='Data Set Entry - {}'.format(data_set_entry[0]),
+        image_id=data_set_entry[1]
       )
 
 @app.route('/data-sets/<int:id>/upload', methods=['POST'])
