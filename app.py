@@ -194,8 +194,8 @@ def err(errors=None):
   return flask.jsonify(res), 400
 
 def process_pil_image(data_set_id, name, image):
-  image = image.convert('RGB')
   image = ImageOps.exif_transpose(image)
+  image = image.convert('RGB')
   width, height = image.size
 
   image_data = np.asarray(image).tobytes()
