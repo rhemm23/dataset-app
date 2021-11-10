@@ -75,7 +75,7 @@ def delete_data_set_entry(id):
   cursor.execute("""DELETE FROM data_set_entries WHERE id = %s;""", (id,))
   cursor.execute("""SELECT face_id FROM image_faces WHERE image_id = %s;""", (image_id,))
   records = cursor.fetchall()
-  face_ids = [record[0] for record in records]
+  face_ids = tuple([record[0] for record in records])
   cursor.execute("""DELETE FROM faces WHERE id IN %s;""", (face_ids,))
   cursor.execute("""DELETE FROM images WHERE id = %s;""", (image_id,))
   conn.commit()

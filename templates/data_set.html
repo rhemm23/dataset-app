@@ -235,7 +235,7 @@
               },
               success: function(data) {
                 $(`#data-set-entry-${id}-name`).text(fin_name)
-                flash_success(`Successfully changed data set entry '${current_name}'' to '${fin_name}'`)
+                flash_success(`Successfully changed data set entry '${current_name}' to '${fin_name}'`)
               },
               error: function(data) {
                 flash_error('Failed to update data set entry')
