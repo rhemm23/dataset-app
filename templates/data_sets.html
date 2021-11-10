@@ -74,7 +74,20 @@
           .modal({
             closable: true,
             onApprove: function() {
-              window.alert('approved!')
+              $.ajax({
+                url: '/data-sets',
+                type: 'POST',
+                data: {
+                  name: $('#new-data-set-name-input').val()
+                },
+                success: function(data) {
+                  var obj = JSON.parse(response);
+                  window.location = `/data-sets/${obj['id']}`
+                },
+                error: function(data) {
+                  flash_error('Failed to create data set')
+                }
+              })
             }
           })
           .modal('show')
