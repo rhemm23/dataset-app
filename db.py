@@ -216,6 +216,14 @@ class DB:
     self.conn.commit()
     cursor.close()
     return id
+  
+  def insert_sub_image(self, cropped_image_id, x, y, scale, data, is_face=False, rotation=0):
+    cursor = self.conn.cursor()
+    cursor.execute("""INSERT INTO sub_images (cropped_image_id, x, y, scale, data, is_face, rotation) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id;""", (cropped_image_id, x, y, scale, data, is_face, rotation))
+    id = cursor.fetchone()[0]
+    self.conn.commit()
+    cursor.close()
+    return id
 
   def insert_face(self, image_id, cropped_image_id, x0, y0, x1, y1):
     cursor = self.conn.cursor()
