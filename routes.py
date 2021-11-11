@@ -9,7 +9,7 @@ db = DB()
 def index():
   return render_template(
     'index.html',
-    title='Data Set Manager',
+    title='Dashboard',
     data_set_count=db.data_set_count()
   )
 
