@@ -10,13 +10,13 @@ class DB:
       """
       SELECT
         data_set_entries.name,
-        images.id,
+        images.id AS image_id,
         images.width,
         images.height,
-        cropped_images.id
+        cropped_images.id AS cropped_image_id
       FROM data_set_entries
-      INNER JOIN images ON data_set_entries.id = images.data_set_entry_id
-      INNER JOIN cropped_images ON images.id = cropped_images.image_id
+      LEFT JOIN images ON data_set_entries.id = images.data_set_entry_id
+      LEFT JOIN cropped_images ON images.id = cropped_images.image_id
       WHERE data_set_entries.id = %s;
       """, (id,))
     data_set_entry = cursor.fetchone()
