@@ -58,6 +58,21 @@ db_cursor.execute(
 )
 db_cursor.execute(
   """
+  CREATE TABLE sub_images (
+    id SERIAL PRIMARY KEY,
+    cropped_image_id INTEGER NOT NULL,
+    scale NUMERIC NOT NULL,
+    x INTEGER NOT NULL,
+    y INTEGER NOT NULL,
+    data BYTEA NOT NULL,
+    is_face BOOLEAN NOT NULL DEFAULT FALSE,
+    rotation NUMERIC NOT NULL DEFAULT 0,
+    CONSTRAINT fk_cropped_images_sub_images FOREIGN KEY (cropped_image_id) REFERENCES cropped_images(id) ON DELETE CASCADE
+  );
+  """
+)
+db_cursor.execute(
+  """
   CREATE TABLE faces (
     id SERIAL PRIMARY KEY,
     image_id INTEGER,
