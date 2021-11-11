@@ -72,7 +72,7 @@ def upload_image_to_data_set(id):
   if not image:
     return api_error('Missing image')
   path = Path(image.filename)
-  if path.suffix not in ['.png', '.jpeg']:
+  if path.suffix not in ['.png', '.jpeg', '.jpg']:
     return api_error('Invalid image type')
   if not db.does_data_set_exist(id):
     return api_error('Data set does not exist')
