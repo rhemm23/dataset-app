@@ -119,6 +119,9 @@ class ImageProcessor:
       dy = abs(right_eye_y - left_eye_y)
 
       rot = math.atan2(dy, dx)
+      if right_eye_y > left_eye_y:
+        rot *= -1
+      
       cropped_bboxes.append([[x0, y0, x1, y1], -1, float('inf'), rot])
 
     # Compute sub images
@@ -136,8 +139,8 @@ class ImageProcessor:
     for size in sizes:
       scaled_image = cropped_image.resize((size, size))
       scale = size / 300
-      for row in range(0, size, 20):
-        for col in range(0, size, 20):
+      for row in range(0, size - 10, 10):
+        for col in range(0, size - 10, 10):
 
           x0 = col
           y0 = row
