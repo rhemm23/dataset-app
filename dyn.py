@@ -40,10 +40,16 @@ def serve_cropped_image(id):
   cropped_image_pixels = np.frombuffer(cropped_image[1], dtype=np.uint8).reshape((300, 300))
   cropped_image_pil = Image.fromarray(cropped_image_pixels, mode='L')
   cropped_image_draw = ImageDraw.Draw(cropped_image_pil)
-  faces = db.get_cropped_image_faces(id)
+  sub_images = db.get_sub_images_with_faces(id)
 
-  for face in faces:
-    cropped_image_draw.rectangle(face, outline='black', width=3)
+  for sub_image in sub_images:
+  
+    x0 = sub_image[1] / sub_image[0]
+    y0 = sub_image[2] / sub_image[0]
+    x1 = (sub_image[1] + 20) / sub_image[0]
+    y1 = (sub_image[2] + 20) / sub_image[0]
+
+    cropped_image_draw.rectangle((x0, y0, x1, y1), outline='black', width=3)
 
   return serve_pil_image(cropped_image_pil)
 

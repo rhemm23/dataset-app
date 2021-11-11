@@ -4,6 +4,13 @@ class DB:
   def __init__(self):
     self.conn = psql.connect("dbname=capstone user=admin password=admin")
 
+  def get_sub_images_with_faces(self, id):
+    cursor = self.conn.cursor()
+    cursor.execute("""SELECT scale, x, y FROM sub_images WHERE is_face = TRUE AND cropped_image_id = %s;""", (id,))
+    sub_images = cursor.fetchall()
+    cursor.close()
+    return sub_images
+
   def get_data_set_entry(self, id):
     cursor = self.conn.cursor()
     cursor.execute(
